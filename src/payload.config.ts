@@ -17,6 +17,20 @@ import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
 
+import Roles from './collections/Roles'
+import Members from './collections/Members'
+import Initiatives from './collections/Initiatives'
+import Meetings from './collections/Meetings'
+import Ninjas from './collections/Ninjas'
+import Mentors from './collections/Mentors'
+import FestivalEditions from './collections/FestivalEditions'
+import FestivalSections from './collections/FestivalSections'
+import Locations from './collections/Locations'
+import Guests from './collections/Guests'
+import Volunteers from './collections/Volunteers'
+import Activities from './collections/Activities'
+import Schedule from './collections/Schedule'
+
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
@@ -64,7 +78,27 @@ export default buildConfig({
       url: process.env.DATABASE_URI || '',
     },
   }),
-  collections: [Pages, Posts, Media, Categories, Users],
+  collections: [
+    Pages,
+    Posts,
+    Media,
+    Categories,
+    Users,
+    Roles,
+    Members,
+    Initiatives,
+    Meetings,
+    Ninjas,
+    Mentors,
+    FestivalEditions,
+    FestivalSections,
+    Locations,
+    Guests,
+    Volunteers,
+    Activities,
+    Schedule,
+  ],
+
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer],
   plugins: [
