@@ -26,6 +26,8 @@ Pentru a genera migrația corectă, trebuie să modelați următoarele entităț
 
 Acestea sunt specificațiile pe baza cărora veți lucra. Nu trebuie să predați fișierele de colecții, ci doar migrația pe care o produc acestea.
 
+**Atenție!!** Câmpurile marcate drept condiționale pot însemna, sub normalizare, relaâii diferite.
+
 #### A. Colecții de Bază și Inițiative
 
 **Roles (Roluri)**
@@ -36,7 +38,7 @@ Câmpuri: name (text, unic, required).
 
 **Members (Membri AI3)**
 
-Câmpuri: user (relație 1-la-1 cu Users), type (select: 'aspirant', 'voting'), subType (select: 'founder', 'honorary' - condițional, doar dacă type este 'voting'), name (text), organization (text), photo (relație 1-la-1 cu Media).
+Un utilizator poate să fie membru, dar există și utilizatori administrativi, care nu sunt membri, dar au acces. Membrii pot să fie cu drep de vot sau aspiranți. Dintre membrii cu drept de vot putem avea și membri fondatori și membri de onoare. Este relevant deoarece membrii de onoare nu plătesc cotizație, dar pot vota.
 
 **Initiatives (Inițiative AI3)**
 
@@ -101,7 +103,7 @@ După ce ați definit toate colecțiile (local, în proiectul vostru), trebuie s
 
 Această comandă va crea un singur fișier în src/migrations/, cu un nume de forma 0001_initial.ts.
 
-Acest fișier, care conține funcțiile async function up() și async function down(), este singurul cod care trebuie inclus în PR. 
+Acest fișier, care conține funcțiile async function up() și async function down(), este singurul cod care trebuie inclus în PR.
 
 Pentru extra points se poate face și o migrare ce adaugă/modifică un câmp.
 
