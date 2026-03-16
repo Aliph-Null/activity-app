@@ -1,0 +1,351 @@
+QUERIES
+
+
+----------
+src\migrations\20260106_213817.ts // original migration
+src\migrations\20260111_105536.ts // added member_fees
+----------
+sqlite> .tables
+_pages_v                            locations
+_pages_v_blocks_archive             locations_facilities
+_pages_v_blocks_content             locations_rels
+_pages_v_blocks_content_columns     media
+_pages_v_blocks_cta                 meetings
+_pages_v_blocks_cta_links           member_fees
+_pages_v_blocks_form_block          members
+_pages_v_blocks_media_block         mentors
+_pages_v_rels                       ninjas
+_pages_v_version_hero_links         pages
+_posts_v                            pages_blocks_archive
+_posts_v_rels                       pages_blocks_content
+_posts_v_version_populated_authors  pages_blocks_content_columns
+activities                          pages_blocks_cta
+activities_audience                 pages_blocks_cta_links
+activities_rels                     pages_blocks_form_block
+categories                          pages_blocks_media_block
+categories_breadcrumbs              pages_hero_links
+festivaleditions                    pages_rels
+festivalsections                    payload_folders
+footer                              payload_folders_folder_type
+footer_nav_items                    payload_jobs
+footer_rels                         payload_jobs_log
+form_submissions                    payload_kv
+form_submissions_submission_data    payload_locked_documents
+forms                               payload_locked_documents_rels
+forms_blocks_checkbox               payload_migrations
+forms_blocks_country                payload_preferences
+forms_blocks_email                  payload_preferences_rels
+forms_blocks_message                posts
+forms_blocks_number                 posts_populated_authors
+forms_blocks_select                 posts_rels
+forms_blocks_select_options         redirects
+forms_blocks_state                  redirects_rels
+forms_blocks_text                   roles
+forms_blocks_textarea               schedule
+forms_emails                        search
+guests                              search_categories
+guests_guest_type                   search_rels
+header                              users
+header_nav_items                    users_rels
+header_rels                         users_sessions
+initiatives                         volunteers
+----------------------------
+DUMMY data
+----------------------------
+----------------------------Users----------------------------
+INSERT INTO users (id, email, name) VALUES
+(1, 'user1@example.com', 'User One'),
+(2, 'user2@example.com', 'User Two'),
+(3, 'user3@example.com', 'User Three'),
+(4, 'user4@example.com', 'User Four'),
+(5, 'user5@example.com', 'User Five'),
+(6, 'user6@example.com', 'User Six'),
+(7, 'user7@example.com', 'User Seven'),
+(8, 'user8@example.com', 'User Eight'),
+(9, 'user9@example.com', 'User Nine'),
+(10, 'user10@example.com', 'User Ten');
+----------------------------Members----------------------------
+INSERT INTO members (user_id, membership_type, voting_status, pays_fee) VALUES
+(1, 'founder', 'active', 1),
+(2, 'voting', 'active', 1),
+(3, 'voting', 'active', 1),
+(4, 'honorary', 'active', 0),
+(5, 'aspirant', 'inactive', 0),
+(6, 'voting', 'active', 1),
+(7, 'founder', 'active', 1),
+(8, 'voting', 'inactive', 1),
+(9, 'aspirant', 'active', 0),
+(10, 'voting', 'active', 1);
+----------------------------FestivalEditions----------------------------
+INSERT INTO festivaleditions (year, title, theme) VALUES
+(2024, '#difffusion 2024', 'AI & Society'),
+(2025, '#difffusion 2025', 'Human + Machine'),
+(2026, '#difffusion 2026', 'Creative Tech');
+----------------------------Volunteers----------------------------
+INSERT INTO volunteers (edition_id, name, coordinator_id) VALUES
+(1, 'Volunteer A', 1),
+(1, 'Volunteer B', 2),
+(1, 'Volunteer C', 3),
+(2, 'Volunteer D', 1),
+(2, 'Volunteer E', 2),
+(2, 'Volunteer F', 3),
+(3, 'Volunteer G', 6),
+(3, 'Volunteer H', 7),
+(3, 'Volunteer I', 8),
+(3, 'Volunteer J', 9);
+----------------------------Guests----------------------------
+INSERT INTO guests (edition_id, name, organization) VALUES
+(1, 'Alice Speaker', 'TechCorp'),
+(1, 'Bob Workshop', 'DevStudio'),
+(1, 'Carol Exhibitor', 'StartupX'),
+(2, 'Dan Speaker', 'OpenLab'),
+(2, 'Eva Workshop', 'University X'),
+(2, 'Frank Exhibitor', 'AI Solutions'),
+(3, 'Grace Speaker', 'TechGroup'),
+(3, 'Hank Workshop', 'DevFactory'),
+(3, 'Ivy Exhibitor', 'StartupY'),
+(3, 'Jack MultiRole', 'InnovationHub');
+----------------------------GuestsRoles----------------------------
+INSERT INTO guests_guest_type (parent_id, value, "order") VALUES
+(1, 'speaker', 0),
+(2, 'workshop_holder', 0),
+(3, 'exhibitor', 0),
+(4, 'speaker', 0),
+(5, 'workshop_holder', 0),
+(6, 'exhibitor', 0),
+(7, 'speaker', 0),
+(8, 'workshop_holder', 0),
+(9, 'exhibitor', 0),
+(10, 'speaker', 0),
+(10, 'workshop_holder', 1);
+----------------------------Initiatives----------------------------
+INSERT INTO initiatives (title, description, site_link) VALUES
+('AI Hackathon', 'Hackathon focused on AI projects', 'https://ai3.org/hackathon'),
+('Robotics Workshop', 'Workshop on robotics', 'https://ai3.org/robotics'),
+('Data Challenge', 'Data science challenge', 'https://ai3.org/data'),
+('Innovation Meetup', 'Meetup about innovation', 'https://ai3.org/innovation'),
+('Coding Sprint', 'Sprint coding event', 'https://ai3.org/sprint'),
+('Tech Talk', 'Tech talk series', 'https://ai3.org/techtalk'),
+('AI Seminar', 'Advanced AI seminar', 'https://ai3.org/seminar'),
+('Web Dev Workshop', 'Web development workshop', 'https://ai3.org/webdev'),
+('Mobile Dev Bootcamp', 'Mobile dev bootcamp', 'https://ai3.org/mobile'),
+('UX/UI Jam', 'UX/UI design jam', 'https://ai3.org/uxui');
+----------------------------Meetings----------------------------
+INSERT INTO meetings (title, date, venue, type) VALUES
+('Weekly Sync 1', '2026-01-10', 'Room A', 'workshop'),
+('Weekly Sync 2', '2026-01-17', 'Room B', 'anti-workshop'),
+('Weekly Sync 3', '2026-01-24', 'Room A', 'workshop'),
+('Weekly Sync 4', '2026-01-31', 'Room C', 'workshop'),
+('Weekly Sync 5', '2026-02-07', 'Room B', 'anti-workshop'),
+('Weekly Sync 6', '2026-02-14', 'Room C', 'workshop'),
+('Weekly Sync 7', '2026-02-21', 'Room A', 'workshop'),
+('Weekly Sync 8', '2026-02-28', 'Room B', 'anti-workshop'),
+('Weekly Sync 9', '2026-03-07', 'Room C', 'workshop'),
+('Weekly Sync 10', '2026-03-14', 'Room A', 'workshop');
+----------------------------FeePayments----------------------------
+INSERT INTO member_fees (member_id, paid_by_email, pay_date, semester, amount) VALUES
+(1, 'founder1@example.com', '2026-01-05', 'Spring 2026', 50),
+(2, 'voter2@example.com', '2026-01-07', 'Spring 2026', 50),
+(3, 'voter3@example.com', '2026-01-08', 'Spring 2026', 50),
+(6, 'voter6@example.com', '2026-01-09', 'Spring 2026', 50),
+(7, 'founder7@example.com', '2026-01-10', 'Spring 2026', 50),
+(8, 'voter8@example.com', '2026-01-11', 'Spring 2026', 50),
+(10, 'voter10@example.com', '2026-01-12', 'Spring 2026', 50),
+(1, 'founder1@example.com', '2026-09-01', 'Fall 2026', 50),
+(2, 'voter2@example.com', '2026-09-02', 'Fall 2026', 50),
+(3, 'voter3@example.com', '2026-09-03', 'Fall 2026', 50);
+
+
+DELETE FROM member_fees WHERE member_id IN (6, 8) AND semester = 'Spring 2026';
+
+INSERT INTO member_fees (member_id, paid_by_email, pay_date, semester, amount) VALUES
+(8, 'friend@example.com', '2025-09-01', 'Fall 2025', 50);
+----------------------------FestivalSections----------------------------
+INSERT INTO festivalsections (edition_id, name) VALUES
+(1, 'AI Exhibits'),
+(1, 'Workshops'),
+(1, 'Talks'),
+(2, 'Human-Machine Exhibits'),
+(2, 'Coding Workshops'),
+(2, 'Panel Discussions'),
+(3, 'Creative Tech Expo'),
+(3, 'Interactive Sessions'),
+(3, 'Seminars'),
+(3, 'Networking Lounge');
+----------------------------Locations----------------------------
+INSERT INTO locations (edition_id, name, address, coordinates, capacity) VALUES
+(1, 'Main Hall', 'Str. Principal 10', '47.1625,27.5889', 200),
+(1, 'Workshop Room 1', 'Str. Workshop 2', '47.1630,27.5895', 50),
+(1, 'Workshop Room 2', 'Str. Workshop 3', '47.1635,27.5900', 50),
+(2, 'Conference Hall', 'Str. Conf 5', '47.1640,27.5910', 250),
+(2, 'Expo Room', 'Str. Expo 6', '47.1645,27.5920', 150),
+(2, 'Panel Room', 'Str. Panel 7', '47.1650,27.5930', 100),
+(3, 'Innovation Hub', 'Str. Hub 10', '47.1660,27.5940', 180),
+(3, 'Tech Lab', 'Str. Lab 11', '47.1665,27.5950', 60),
+(3, 'Networking Area', 'Str. Net 12', '47.1670,27.5960', 120),
+(3, 'Seminar Room', 'Str. Seminar 13', '47.1675,27.5970', 80);
+----------------------------Activities----------------------------
+INSERT INTO activities (edition_id, title, type, section_id) VALUES
+(1, 'AI Robots Demo', 'expo', 1),
+(1, 'Deep Learning Talk', 'talk', 3),
+(1, 'Python Workshop', 'workshop', 2),
+(2, 'Human-Machine Panels', 'talk', 6),
+(2, 'Coding Challenge', 'workshop', 5),
+(2, 'Startup Expo', 'expo', 4),
+(3, 'Creative AI Lab', 'workshop', 8),
+(3, 'Networking Party', 'social', 9),
+(3, 'Tech Seminar', 'talk', 10),
+(3, 'Interactive Exhibit', 'expo', 7);
+----------------------------Schedule----------------------------
+INSERT INTO schedule (edition_id, activity_id, location_id, start_time, end_time) VALUES
+(1, 1, 1, '2026-01-10T09:00', '2026-01-10T12:00'),
+(1, 2, 1, '2026-01-10T13:00', '2026-01-10T15:00'),
+(1, 3, 2, '2026-01-11T10:00', '2026-01-11T12:00'),
+(2, 4, 6, '2026-02-01T09:00', '2026-02-01T11:00'),
+(2, 5, 5, '2026-02-01T11:30', '2026-02-01T13:30'),
+(2, 6, 4, '2026-02-01T14:00', '2026-02-01T17:00'),
+(3, 7, 8, '2026-03-01T09:00', '2026-03-01T12:00'),
+(3, 8, 9, '2026-03-01T12:30', '2026-03-01T15:00'),
+(3, 9, 10, '2026-03-01T15:30', '2026-03-01T17:00'),
+(3, 10, 7, '2026-03-02T10:00', '2026-03-02T12:00');
+----------------------------Ninjas----------------------------
+INSERT INTO ninjas (child_name, age, guardian_name, guardian_email, guardian_phone, safety_agreement, photo_release_agreement) VALUES
+('Alice Child', 10, 'Parent A', 'parentA@example.com', '0711111111', 1, 1),
+('Bob Child', 12, 'Parent B', 'parentB@example.com', '0722222222', 1, 1),
+('Carol Child', 11, 'Parent C', 'parentC@example.com', '0733333333', 1, 1),
+('Dan Child', 10, 'Parent D', 'parentD@example.com', '0744444444', 1, 1),
+('Eva Child', 12, 'Parent E', 'parentE@example.com', '0755555555', 1, 1),
+('Frank Child', 11, 'Parent F', 'parentF@example.com', '0766666666', 1, 1),
+('Grace Child', 10, 'Parent G', 'parentG@example.com', '0777777777', 1, 1),
+('Hank Child', 12, 'Parent H', 'parentH@example.com', '0788888888', 1, 1),
+('Ivy Child', 11, 'Parent I', 'parentI@example.com', '0799999999', 1, 1),
+('Jack Child', 10, 'Parent J', 'parentJ@example.com', '0700000000', 1, 1);
+----------------------------Mentors----------------------------
+INSERT INTO mentors (name, bio, user_account_id) VALUES
+('Mentor A', 'Expert in AI', 1),
+('Mentor B', 'Expert in Robotics', 2),
+('Mentor C', 'Data Science Guru', 3),
+('Mentor D', 'Software Engineer', 4),
+('Mentor E', 'UI/UX Designer', 5),
+('Mentor F', 'Cybersecurity Specialist', 6),
+('Mentor G', 'Cloud Computing', 7),
+('Mentor H', 'IoT Expert', 8),
+('Mentor I', 'Machine Learning Engineer', 9),
+('Mentor J', 'Blockchain Developer', 10);
+
+=============================================================================================================================
+
+PRAGMA table_info(.table);
+
+
+=============================================================================================================================
+Members who have not paid their dues this semester
+Excludes honorary members and those who don’t pay (pays_fee=0)
+
+Uses LEFT JOIN to find missing payments
+
+SELECT m.id AS member_id, u.name AS member_name, u.email AS member_email
+FROM members m
+JOIN users u ON u.id = m.user_id
+LEFT JOIN member_fees f
+       ON f.member_id = m.id AND f.semester = 'Spring 2026'
+WHERE m.pays_fee = 1
+  AND m.membership_type != 'honorary'
+  AND f.id IS NULL;
+
+------------------------------------------------------------------------------------
+List all volunteers along with their coordinator
+
+
+SELECT v.name AS volunteer_name,
+       v.phone,
+       u.name AS coordinator_name
+FROM volunteers v
+LEFT JOIN members m ON m.id = v.coordinator_id
+LEFT JOIN users u ON u.id = m.user_id
+ORDER BY v.name;
+
+List all volunteers for a specific festival edition along with their coordinator
+
+
+SELECT v.name AS volunteer_name,
+       v.phone,
+       u.name AS coordinator_name,
+       fe.title AS edition_title
+FROM volunteers v
+LEFT JOIN members m ON m.id = v.coordinator_id
+LEFT JOIN users u ON u.id = m.user_id
+JOIN festivaleditions fe ON fe.id = v.edition_id
+WHERE v.edition_id = 2
+ORDER BY v.name;
+------------------------------------------------------------------------------------
+
+Total fees collected per member
+
+SELECT m.id AS member_id,
+       u.name AS member_name,
+       SUM(f.amount) AS total_paid
+FROM members m
+JOIN users u ON u.id = m.user_id
+JOIN member_fees f ON f.member_id = m.id
+GROUP BY m.id
+ORDER BY total_paid DESC;
+
+------------------------------------------------------------------------------------
+
+Festival edition overview: sections, locations, and number of activities per section
+
+
+SELECT fe.title AS edition_title,
+       fs.name AS section_name,
+       COUNT(a.id) AS activities_count
+FROM festivaleditions fe
+JOIN festivalsections fs ON fs.edition_id = fe.id
+LEFT JOIN activities a ON a.section_id = fs.id
+GROUP BY fs.id
+ORDER BY fe.year, fs.name;
+
+------------------------------------------------------------------------------------
+Guests who play multiple roles in a festival
+
+SELECT g.name AS guest_name,
+       fe.title AS edition_title,
+       GROUP_CONCAT(gt.value) AS roles
+FROM guests g
+JOIN guests_guest_type gt ON gt.parent_id = g.id
+JOIN festivaleditions fe ON fe.id = g.edition_id
+GROUP BY g.id
+HAVING COUNT(gt.value) > 1
+ORDER BY guest_name;
+
+------------------------------------------------------------------------------------
+Members with upcoming scheduled meetings
+SELECT m.id AS member_id,
+       u.name AS member_name,
+       mt.title AS meeting_title,
+       mt.date
+FROM members m
+JOIN users u ON u.id = m.user_id
+JOIN meetings mt ON mt.presenter = m.id
+WHERE mt.date >= DATE('now')
+ORDER BY mt.date ASC;
+------------------------------------------------------------------------------------
+Volunteers without assigned coordinator
+
+SELECT v.name AS volunteer_name,
+       v.phone,
+       fe.title AS edition_title
+FROM volunteers v
+JOIN festivaleditions fe ON fe.id = v.edition_id
+WHERE v.coordinator_id IS NULL
+ORDER BY fe.year, v.name;
+
+------------------------------------------------------------------------------------
+SELECT n.child_name,
+       n.age,
+       n.guardian_name,
+       n.guardian_email,
+       n.guardian_phone
+FROM ninjas n
+ORDER BY n.age DESC, n.child_name;
+
