@@ -1,0 +1,58 @@
+<div class="sm:flex sm:items-center">
+  <div class="sm:flex-auto">
+    <h1 class="text-base font-semibold text-gray-900 dark:text-white">Festival Editions</h1>
+    <p class="mt-2 text-sm text-gray-700 dark:text-gray-400">Manage festival editions.</p>
+  </div>
+  <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+    <a href="/admin/festival/editions/new" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-indigo-500">Add edition</a>
+  </div>
+</div>
+
+<div class="mt-8 flow-root">
+  <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+    <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+      <table class="min-w-full divide-y divide-gray-300 dark:divide-white/10">
+        <thead>
+          <tr>
+            <th scope="col" class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-0">Year</th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Title</th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Theme</th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Colors</th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Created</th>
+            <th scope="col" class="relative py-3.5 pr-4 pl-3 sm:pr-0"><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-white/5">
+          {{#each items}}
+          <tr>
+            <td class="whitespace-nowrap py-4 pr-3 pl-4 text-sm font-medium text-gray-900 dark:text-white sm:pl-0">{{this.year}}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{this.title}}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{this.theme}}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm">
+              <span class="inline-flex items-center gap-1">
+                {{#if this.main_color}}<span class="size-3 rounded-full ring-1 ring-gray-300 dark:ring-white/20" style="background-color: {{this.main_color}}" title="Main"></span>{{/if}}
+                {{#if this.secondary_color}}<span class="size-3 rounded-full ring-1 ring-gray-300 dark:ring-white/20" style="background-color: {{this.secondary_color}}" title="Secondary"></span>{{/if}}
+                {{#if this.accent_color}}<span class="size-3 rounded-full ring-1 ring-gray-300 dark:ring-white/20" style="background-color: {{this.accent_color}}" title="Accent"></span>{{/if}}
+                {{#unless this.main_color}}{{#unless this.secondary_color}}{{#unless this.accent_color}}<span class="text-gray-400">-</span>{{/unless}}{{/unless}}{{/unless}}
+              </span>
+            </td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{this.created_at}}</td>
+            <td class="relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-0">
+              <a href="/admin/festival/editions/{{this.id}}/edit" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">Edit</a>
+              <a href="/admin/festival/editions/{{this.id}}" class="ml-3 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">View</a>
+              <form method="POST" action="/admin/festival/editions/{{this.id}}/delete" class="inline ml-3">
+                <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300" onclick="return confirm('Are you sure?')">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {{/each}}
+          {{#unless items.length}}
+          <tr>
+            <td colspan="6" class="py-8 text-center text-sm text-gray-500 dark:text-gray-400">No editions found.</td>
+          </tr>
+          {{/unless}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

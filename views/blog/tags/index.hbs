@@ -1,0 +1,54 @@
+{{> blog_tabs tab=tab }}
+<div class="sm:flex sm:items-center">
+  <div class="sm:flex-auto">
+    <h1 class="text-base font-semibold text-gray-900 dark:text-white">Blog Tags</h1>
+    <p class="mt-2 text-sm text-gray-700 dark:text-gray-400">Manage tags used to categorize blog posts.</p>
+  </div>
+</div>
+
+<form method="POST" action="/admin/blog/tags" class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-end">
+  <div class="flex-1">
+    <label for="name" class="block text-sm/6 font-medium text-gray-900 dark:text-white">New tag</label>
+    <input type="text" name="name" id="name" required placeholder="Tag name" class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500" />
+  </div>
+  <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500">Add tag</button>
+</form>
+
+<div class="mt-8 flow-root">
+  <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+    <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+      <table class="min-w-full divide-y divide-gray-300 dark:divide-white/10">
+        <thead>
+          <tr>
+            <th scope="col" class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-0">Name</th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Posts</th>
+            <th scope="col" class="relative py-3.5 pr-4 pl-3 sm:pr-0"><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-white/5">
+          {{#each items}}
+          <tr>
+            <td class="whitespace-nowrap py-4 pr-3 pl-4 text-sm sm:pl-0">
+              <form method="POST" action="/admin/blog/tags/{{this.id}}" class="flex items-center gap-2">
+                <input type="text" name="name" value="{{this.name}}" required class="block w-40 rounded-md bg-white px-2 py-1 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500" />
+                <button type="submit" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm font-medium">Save</button>
+              </form>
+            </td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{this.post_count}}</td>
+            <td class="relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-0">
+              <form method="POST" action="/admin/blog/tags/{{this.id}}/delete" class="inline">
+                <button type="submit" onclick="return confirm('Delete this tag?')" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {{/each}}
+          {{#unless items.length}}
+          <tr>
+            <td colspan="3" class="py-8 text-center text-sm text-gray-500 dark:text-gray-400">No tags yet.</td>
+          </tr>
+          {{/unless}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

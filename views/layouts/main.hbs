@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html class="h-full bg-gray-50 dark:bg-gray-900" lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI3 Admin Dashboard</title>
+  <link rel="stylesheet" href="/css/app.css" />
+  <script src="/js/tailwindplus-elements.js" type="module"></script>
+</head>
+<body class="h-full">
+
+{{> sidebar currentRoute=currentRoute user=user }}
+
+<div class="sticky top-0 z-40 flex items-center gap-x-6 bg-gray-900 px-4 py-4 shadow-sm sm:px-6 lg:hidden">
+  <button type="button" command="show-modal" commandfor="sidebar" class="-m-2.5 p-2.5 text-gray-400 hover:text-white lg:hidden">
+    <span class="sr-only">Open sidebar</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" class="size-6">
+      <path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  </button>
+  <div class="flex-1 text-sm/6 font-semibold text-white">AI3 Dashboard</div>
+  {{#if user}}
+  <span class="text-sm text-gray-300">{{user.username}}</span>
+  {{/if}}
+</div>
+
+<main class="py-10 lg:pl-72">
+  <div class="px-4 sm:px-6 lg:px-8">
+    {{> flash_messages flash=flash }}
+    {{{body}}}
+  </div>
+</main>
+
+</body>
+</html>

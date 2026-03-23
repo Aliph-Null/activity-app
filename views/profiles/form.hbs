@@ -1,0 +1,44 @@
+<div class="mx-auto max-w-2xl">
+  <h1 class="text-base font-semibold text-gray-900 dark:text-white">{{#if isEdit}}Edit Profile{{else}}New Profile{{/if}}</h1>
+
+  <form method="POST" action="{{#if isEdit}}/admin/profiles/{{profile.id}}{{else}}/admin/profiles{{/if}}" class="mt-8 space-y-6">
+    <div>
+      <label for="name" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Name <span class="text-red-500">*</span></label>
+      <div class="mt-2">
+        <input type="text" name="name" id="name" required value="{{profile.name}}"
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500" />
+      </div>
+    </div>
+
+    <div>
+      <label for="email" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Email</label>
+      <div class="mt-2">
+        <input type="email" name="email" id="email" value="{{profile.email}}"
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500" />
+      </div>
+    </div>
+
+    <div>
+      <label for="phone" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Phone</label>
+      <div class="mt-2">
+        <input type="text" name="phone" id="phone" value="{{profile.phone}}"
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500" />
+      </div>
+    </div>
+
+    <div>
+      <label for="birth_date" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Birth Date</label>
+      <div class="mt-2">
+        <input type="date" name="birth_date" id="birth_date" value="{{profile.birth_date}}"
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500 dark:[color-scheme:dark]" />
+      </div>
+    </div>
+
+    <div class="flex items-center gap-x-4">
+      <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500">
+        {{#if isEdit}}Update{{else}}Create{{/if}}
+      </button>
+      <a href="/admin/profiles" class="text-sm/6 font-semibold text-gray-900 dark:text-gray-300">Cancel</a>
+    </div>
+  </form>
+</div>

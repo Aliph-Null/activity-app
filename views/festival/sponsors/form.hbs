@@ -1,0 +1,55 @@
+<div class="mx-auto max-w-2xl">
+  <h1 class="text-base font-semibold text-gray-900 dark:text-white">{{#if isEdit}}Edit Sponsor{{else}}New Sponsor{{/if}}</h1>
+
+  <form method="POST" action="{{#if isEdit}}/admin/festival/sponsors/{{sponsor.id}}{{else}}/admin/festival/editions/{{edition.id}}/sponsors{{/if}}" class="mt-8 space-y-6">
+    <div>
+      <label for="name" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Name <span class="text-red-500">*</span></label>
+      <div class="mt-2">
+        <input type="text" name="name" id="name" required value="{{sponsor.name}}"
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500" />
+      </div>
+    </div>
+
+    <div>
+      <label for="sponsorship_type" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Sponsorship Type <span class="text-red-500">*</span></label>
+      <div class="mt-2">
+        <select name="sponsorship_type" id="sponsorship_type" required
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500">
+          <option value="media" {{#if (eq sponsor.sponsorship_type 'media')}}selected{{/if}}>Media</option>
+          <option value="institution" {{#if (eq sponsor.sponsorship_type 'institution')}}selected{{/if}}>Institution</option>
+          <option value="catering" {{#if (eq sponsor.sponsorship_type 'catering')}}selected{{/if}}>Catering</option>
+          <option value="publishing" {{#if (eq sponsor.sponsorship_type 'publishing')}}selected{{/if}}>Publishing</option>
+          <option value="other" {{#if (eq sponsor.sponsorship_type 'other')}}selected{{/if}}>Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label for="sponsorship_level" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Sponsorship Level <span class="text-red-500">*</span></label>
+      <div class="mt-2">
+        <select name="sponsorship_level" id="sponsorship_level" required
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500">
+          <option value="whisperer" {{#if (eq sponsor.sponsorship_level 'whisperer')}}selected{{/if}}>Whisperer</option>
+          <option value="charmer" {{#if (eq sponsor.sponsorship_level 'charmer')}}selected{{/if}}>Charmer</option>
+          <option value="loudspeaker" {{#if (eq sponsor.sponsorship_level 'loudspeaker')}}selected{{/if}}>Loudspeaker</option>
+          <option value="difffusion_voice" {{#if (eq sponsor.sponsorship_level 'difffusion_voice')}}selected{{/if}}>Diffusion Voice</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label for="website" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Website</label>
+      <div class="mt-2">
+        <input type="url" name="website" id="website" value="{{sponsor.website}}"
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500" />
+      </div>
+    </div>
+
+    <div class="flex items-center gap-x-4">
+      <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500">
+        {{#if isEdit}}Update{{else}}Create{{/if}}
+      </button>
+      <a href="/admin/festival/editions/{{edition.id}}" class="text-sm/6 font-semibold text-gray-900 dark:text-gray-300">Cancel</a>
+    </div>
+  </form>
+</div>

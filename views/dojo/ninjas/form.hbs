@@ -1,0 +1,48 @@
+<div class="mx-auto max-w-2xl">
+  <h1 class="text-base font-semibold text-gray-900 dark:text-white">{{#if isEdit}}Edit Ninja{{else}}New Ninja{{/if}}</h1>
+
+  <form method="POST" action="{{#if isEdit}}/admin/dojo/ninjas/{{ninja.id}}{{else}}/admin/dojo/ninjas{{/if}}" class="mt-8 space-y-6">
+    {{#unless isEdit}}
+    <div>
+      <label for="profile_id" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Profile <span class="text-red-500">*</span></label>
+      <div class="mt-2">
+        <select name="profile_id" id="profile_id" required
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500">
+          <option value="">Select a profile...</option>
+          {{#each profiles}}
+          <option value="{{this.id}}">{{this.name}}</option>
+          {{/each}}
+        </select>
+      </div>
+    </div>
+    {{/unless}}
+
+    <div>
+      <label for="tutor_id" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Tutor <span class="text-red-500">*</span></label>
+      <div class="mt-2">
+        <select name="tutor_id" id="tutor_id" required
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500">
+          <option value="">Select a tutor...</option>
+          {{#each tutors}}
+          <option value="{{this.id}}" {{#if (eq this.id ../ninja.tutor_id)}}selected{{/if}}>{{this.profile_name}}</option>
+          {{/each}}
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label for="useful_info" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Useful Info</label>
+      <div class="mt-2">
+        <textarea name="useful_info" id="useful_info" rows="4"
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500">{{ninja.useful_info}}</textarea>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-x-4">
+      <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500">
+        {{#if isEdit}}Update{{else}}Create{{/if}}
+      </button>
+      <a href="/admin/dojo/ninjas" class="text-sm/6 font-semibold text-gray-900 dark:text-gray-300">Cancel</a>
+    </div>
+  </form>
+</div>

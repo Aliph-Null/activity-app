@@ -1,0 +1,93 @@
+<div class="mx-auto max-w-2xl">
+  {{#if isEdit}}
+  {{> festival_edition_nav edition=edition festivalSubnav=festivalSubnav }}
+  {{/if}}
+  <h1 class="text-base font-semibold text-gray-900 dark:text-white">{{#if isEdit}}Edit Edition{{else}}New Edition{{/if}}</h1>
+
+  <form method="POST" action="{{#if isEdit}}/admin/festival/editions/{{edition.id}}{{else}}/admin/festival/editions{{/if}}" class="mt-8 space-y-6">
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <div>
+        <label for="year" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Year <span class="text-red-500">*</span></label>
+        <div class="mt-2">
+          <input type="number" name="year" id="year" required value="{{edition.year}}"
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500" />
+        </div>
+      </div>
+      <div>
+        <label for="title" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Title <span class="text-red-500">*</span></label>
+        <div class="mt-2">
+          <input type="text" name="title" id="title" required value="{{edition.title}}"
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500" />
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <label for="theme" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Theme</label>
+      <div class="mt-2">
+        <input type="text" name="theme" id="theme" value="{{edition.theme}}"
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500" />
+      </div>
+    </div>
+
+    <div>
+      <label for="short_description" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Short Description</label>
+      <div class="mt-2">
+        <textarea name="short_description" id="short_description" rows="3"
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500">{{edition.short_description}}</textarea>
+      </div>
+    </div>
+
+    <div>
+      <label for="long_description" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Long Description</label>
+      <div class="mt-2">
+        <textarea name="long_description" id="long_description" rows="6"
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500">{{edition.long_description}}</textarea>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+      <div>
+        <label for="main_color" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Main Color</label>
+        <div class="mt-2">
+          <input type="color" name="main_color" id="main_color" value="{{#if edition.main_color}}{{edition.main_color}}{{else}}#6366f1{{/if}}"
+            class="h-10 w-full cursor-pointer rounded border-0 bg-transparent p-0 dark:[color-scheme:dark]" />
+        </div>
+      </div>
+      <div>
+        <label for="secondary_color" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Secondary Color</label>
+        <div class="mt-2">
+          <input type="color" name="secondary_color" id="secondary_color" value="{{#if edition.secondary_color}}{{edition.secondary_color}}{{else}}#8b5cf6{{/if}}"
+            class="h-10 w-full cursor-pointer rounded border-0 bg-transparent p-0 dark:[color-scheme:dark]" />
+        </div>
+      </div>
+      <div>
+        <label for="accent_color" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Accent Color</label>
+        <div class="mt-2">
+          <input type="color" name="accent_color" id="accent_color" value="{{#if edition.accent_color}}{{edition.accent_color}}{{else}}#ec4899{{/if}}"
+            class="h-10 w-full cursor-pointer rounded border-0 bg-transparent p-0 dark:[color-scheme:dark]" />
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <label for="blog_tag_id" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Blog Tag</label>
+      <div class="mt-2">
+        <select name="blog_tag_id" id="blog_tag_id"
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500">
+          <option value="">None</option>
+          {{#each blogTags}}
+          <option value="{{this.id}}" {{#if (eq this.id ../edition.blog_tag_id)}}selected{{/if}}>{{this.name}}</option>
+          {{/each}}
+        </select>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-x-4">
+      <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500">
+        {{#if isEdit}}Update{{else}}Create{{/if}}
+      </button>
+      <a href="/admin/festival" class="text-sm/6 font-semibold text-gray-900 dark:text-gray-300">Cancel</a>
+    </div>
+  </form>
+</div>

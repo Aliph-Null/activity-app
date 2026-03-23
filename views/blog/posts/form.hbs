@@ -1,0 +1,205 @@
+{{> blog_tabs tab=tab }}
+<div>
+  <h1 class="text-base font-semibold text-gray-900 dark:text-white">{{#if isEdit}}Edit Post{{else}}New Post{{/if}}</h1>
+  <form method="POST" action="{{#if isEdit}}/admin/blog/posts/{{post.id}}{{else}}/admin/blog/posts{{/if}}" class="mt-8 space-y-6" id="post-form">
+
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <div>
+        <label for="title" class="block text-sm/6 font-medium text-gray-900 dark:text-white">Title</label>
+        <input type="text" name="title" id="title" value="{{post.title}}" required class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500" />
+      </div>
+      <div>
+        <label for="slug" class="block text-sm/6 font-medium text-gray-900 dark:text-white">Slug</label>
+        <input type="text" name="slug" id="slug" value="{{post.slug}}" placeholder="auto-generated if empty" class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500" />
+      </div>
+    </div>
+
+    {{!-- Summary editor --}}
+    <div>
+      <div class="flex items-center justify-between">
+        <label class="block text-sm/6 font-medium text-gray-900 dark:text-white">Summary <span class="font-normal text-gray-500 dark:text-gray-400">(Markdown)</span></label>
+        <div class="flex gap-1">
+          <button type="button" onclick="togglePreview('summary')" class="rounded px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/10" id="summary-toggle">Preview</button>
+        </div>
+      </div>
+      <div class="relative mt-2">
+        <div id="summary-toolbar" class="flex gap-0.5 rounded-t-md border border-b-0 border-gray-300 bg-gray-50 px-2 py-1 dark:border-white/10 dark:bg-white/5">
+          <button type="button" onclick="insertMd('summary','**','**')" class="rounded px-1.5 py-0.5 text-xs font-bold text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-white/10" title="Bold">B</button>
+          <button type="button" onclick="insertMd('summary','*','*')" class="rounded px-1.5 py-0.5 text-xs italic text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-white/10" title="Italic">I</button>
+          <button type="button" onclick="insertMd('summary','[','](url)')" class="rounded px-1.5 py-0.5 text-xs text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-white/10" title="Link">🔗</button>
+          <button type="button" onclick="insertMd('summary','### ','')" class="rounded px-1.5 py-0.5 text-xs text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-white/10" title="Heading">H</button>
+        </div>
+        <textarea name="summary" id="summary" rows="4" class="block w-full rounded-b-md border-t-0 bg-white px-3 py-1.5 font-mono text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500" oninput="updatePreview('summary')">{{post.summary}}</textarea>
+        <div id="summary-preview" class="hidden min-h-[6rem] rounded-md border border-gray-300 bg-white px-4 py-3 dark:border-white/10 dark:bg-white/5">
+          <div class="prose prose-sm max-w-none dark:prose-invert" id="summary-preview-content"></div>
+        </div>
+      </div>
+    </div>
+
+    {{!-- Body editor --}}
+    <div>
+      <div class="flex items-center justify-between">
+        <label class="block text-sm/6 font-medium text-gray-900 dark:text-white">Body <span class="font-normal text-gray-500 dark:text-gray-400">(Markdown)</span></label>
+        <div class="flex gap-1 rounded-md bg-gray-100 p-0.5 dark:bg-white/10">
+          <button type="button" onclick="setEditorMode('body','write')" id="body-mode-write" class="rounded px-2 py-1 text-xs font-medium bg-white text-gray-900 shadow-sm dark:bg-white/20 dark:text-white">Write</button>
+          <button type="button" onclick="setEditorMode('body','preview')" id="body-mode-preview" class="rounded px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-400">Preview</button>
+          <button type="button" onclick="setEditorMode('body','split')" id="body-mode-split" class="rounded px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-400">Split</button>
+        </div>
+      </div>
+      <div class="relative mt-2">
+        <div id="body-toolbar" class="flex flex-wrap gap-0.5 rounded-t-md border border-b-0 border-gray-300 bg-gray-50 px-2 py-1 dark:border-white/10 dark:bg-white/5">
+          <button type="button" onclick="insertMd('body','**','**')" class="rounded px-1.5 py-0.5 text-xs font-bold text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-white/10" title="Bold">B</button>
+          <button type="button" onclick="insertMd('body','*','*')" class="rounded px-1.5 py-0.5 text-xs italic text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-white/10" title="Italic">I</button>
+          <button type="button" onclick="insertMd('body','~~','~~')" class="rounded px-1.5 py-0.5 text-xs line-through text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-white/10" title="Strikethrough">S</button>
+          <span class="mx-1 border-l border-gray-300 dark:border-white/20"></span>
+          <button type="button" onclick="insertMd('body','## ','')" class="rounded px-1.5 py-0.5 text-xs text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-white/10" title="Heading 2">H2</button>
+          <button type="button" onclick="insertMd('body','### ','')" class="rounded px-1.5 py-0.5 text-xs text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-white/10" title="Heading 3">H3</button>
+          <span class="mx-1 border-l border-gray-300 dark:border-white/20"></span>
+          <button type="button" onclick="insertMd('body','[','](url)')" class="rounded px-1.5 py-0.5 text-xs text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-white/10" title="Link">🔗</button>
+          <button type="button" onclick="insertMd('body','![alt](',')')" class="rounded px-1.5 py-0.5 text-xs text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-white/10" title="Image">🖼</button>
+          <button type="button" onclick="insertMd('body','`','`')" class="rounded px-1.5 py-0.5 text-xs font-mono text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-white/10" title="Inline code">&lt;&gt;</button>
+          <button type="button" onclick="insertBlock('body','```\n','\n```')" class="rounded px-1.5 py-0.5 text-xs text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-white/10" title="Code block">{ }</button>
+          <span class="mx-1 border-l border-gray-300 dark:border-white/20"></span>
+          <button type="button" onclick="insertMd('body','- ','')" class="rounded px-1.5 py-0.5 text-xs text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-white/10" title="Bullet list">•</button>
+          <button type="button" onclick="insertMd('body','1. ','')" class="rounded px-1.5 py-0.5 text-xs text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-white/10" title="Numbered list">1.</button>
+          <button type="button" onclick="insertMd('body','> ','')" class="rounded px-1.5 py-0.5 text-xs text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-white/10" title="Blockquote">❝</button>
+          <button type="button" onclick="insertMd('body','---\n','')" class="rounded px-1.5 py-0.5 text-xs text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-white/10" title="Horizontal rule">—</button>
+        </div>
+        <div id="body-editor-container" class="flex">
+          <textarea name="body" id="body" rows="20" class="block w-full rounded-bl-md border-t-0 bg-white px-3 py-1.5 font-mono text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500" oninput="updatePreview('body')">{{post.body}}</textarea>
+          <div id="body-preview" class="hidden w-full overflow-y-auto rounded-br-md border border-l-0 border-t-0 border-gray-300 bg-white px-4 py-3 dark:border-white/10 dark:bg-white/5" style="min-height:30rem">
+            <div class="prose prose-sm max-w-none dark:prose-invert" id="body-preview-content"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <div>
+        <label for="published_at" class="block text-sm/6 font-medium text-gray-900 dark:text-white">Publish date</label>
+        <input type="datetime-local" name="published_at" id="published_at" value="{{post.published_at}}" class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500" />
+        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Leave empty to save as draft.</p>
+      </div>
+      <fieldset>
+        <legend class="text-sm/6 font-medium text-gray-900 dark:text-white">Tags</legend>
+        <div class="mt-2 flex flex-wrap gap-3">
+          {{#each allTags}}
+          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <input type="checkbox" name="tag_ids" value="{{this.id}}" {{#if (includes ../post.tag_ids this.id)}}checked{{/if}} class="size-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 dark:border-white/10 dark:bg-white/5" />
+            {{this.name}}
+          </label>
+          {{/each}}
+          {{#unless allTags.length}}
+          <p class="text-sm text-gray-500 dark:text-gray-400">No tags yet. <a href="/admin/blog/tags" class="text-indigo-600 dark:text-indigo-400">Create tags first.</a></p>
+          {{/unless}}
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="flex items-center justify-end gap-x-6">
+      <a href="/admin/blog" class="text-sm/6 font-semibold text-gray-900 dark:text-gray-300">Cancel</a>
+      {{#if isEdit}}
+      <a href="/admin/blog/posts/{{post.id}}/preview" target="_blank" class="rounded-md bg-gray-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-gray-500">Preview</a>
+      {{/if}}
+      <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{#if isEdit}}Update{{else}}Create{{/if}}</button>
+    </div>
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+(function() {
+  function getEl(id) { return document.getElementById(id); }
+
+  window.updatePreview = function(field) {
+    var src = getEl(field).value;
+    var target = getEl(field + '-preview-content');
+    if (target) target.innerHTML = marked.parse(src || '');
+  };
+
+  window.togglePreview = function(field) {
+    var ta = getEl(field);
+    var tb = getEl(field + '-toolbar');
+    var pv = getEl(field + '-preview');
+    var btn = getEl(field + '-toggle');
+    if (pv.classList.contains('hidden')) {
+      updatePreview(field);
+      ta.classList.add('hidden');
+      if (tb) tb.classList.add('hidden');
+      pv.classList.remove('hidden');
+      btn.textContent = 'Edit';
+    } else {
+      ta.classList.remove('hidden');
+      if (tb) tb.classList.remove('hidden');
+      pv.classList.add('hidden');
+      btn.textContent = 'Preview';
+    }
+  };
+
+  window.setEditorMode = function(field, mode) {
+    var ta = getEl(field);
+    var tb = getEl(field + '-toolbar');
+    var pv = getEl(field + '-preview');
+    var container = getEl(field + '-editor-container');
+    var btnW = getEl(field + '-mode-write');
+    var btnP = getEl(field + '-mode-preview');
+    var btnS = getEl(field + '-mode-split');
+    var active = 'bg-white text-gray-900 shadow-sm dark:bg-white/20 dark:text-white';
+    var inactive = 'text-gray-600 dark:text-gray-400';
+    [btnW, btnP, btnS].forEach(function(b) { b.className = b.className.replace(/bg-white text-gray-900 shadow-sm dark:bg-white\/20 dark:text-white/g, '').replace(/text-gray-600 dark:text-gray-400/g, '').trim(); });
+
+    updatePreview(field);
+
+    if (mode === 'write') {
+      ta.classList.remove('hidden'); ta.style.width = '';
+      if (tb) tb.classList.remove('hidden');
+      pv.classList.add('hidden');
+      if (container) container.style.flexDirection = '';
+      btnW.className += ' ' + active;
+      btnP.className += ' ' + inactive;
+      btnS.className += ' ' + inactive;
+    } else if (mode === 'preview') {
+      ta.classList.add('hidden');
+      if (tb) tb.classList.add('hidden');
+      pv.classList.remove('hidden'); pv.style.width = '100%'; pv.style.borderLeft = '';
+      btnW.className += ' ' + inactive;
+      btnP.className += ' ' + active;
+      btnS.className += ' ' + inactive;
+    } else {
+      ta.classList.remove('hidden'); ta.style.width = '50%';
+      if (tb) tb.classList.remove('hidden');
+      pv.classList.remove('hidden'); pv.style.width = '50%';
+      pv.style.borderLeftWidth = '1px';
+      btnW.className += ' ' + inactive;
+      btnP.className += ' ' + inactive;
+      btnS.className += ' ' + active;
+    }
+  };
+
+  window.insertMd = function(field, before, after) {
+    var ta = getEl(field);
+    var start = ta.selectionStart, end = ta.selectionEnd;
+    var sel = ta.value.substring(start, end);
+    var replacement = before + sel + after;
+    ta.setRangeText(replacement, start, end, 'select');
+    ta.focus();
+    ta.selectionStart = start + before.length;
+    ta.selectionEnd = start + before.length + sel.length;
+    updatePreview(field);
+  };
+
+  window.insertBlock = function(field, before, after) {
+    var ta = getEl(field);
+    var start = ta.selectionStart, end = ta.selectionEnd;
+    var sel = ta.value.substring(start, end);
+    var needsNewline = start > 0 && ta.value[start - 1] !== '\n' ? '\n' : '';
+    var replacement = needsNewline + before + sel + after + '\n';
+    ta.setRangeText(replacement, start, end, 'end');
+    ta.focus();
+    updatePreview(field);
+  };
+
+  updatePreview('summary');
+  updatePreview('body');
+})();
+</script>

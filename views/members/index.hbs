@@ -1,0 +1,63 @@
+<div class="sm:flex sm:items-center">
+  <div class="sm:flex-auto">
+    <h1 class="text-base font-semibold text-gray-900 dark:text-white">Members</h1>
+    <p class="mt-2 text-sm text-gray-700 dark:text-gray-400">AI3 association members (aspiring and full).</p>
+  </div>
+  <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+    <a href="/admin/members/new" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-indigo-500">Add member</a>
+  </div>
+</div>
+
+<div class="mt-8 flow-root">
+  <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+    <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+      <table class="min-w-full divide-y divide-gray-300 dark:divide-white/10">
+        <thead>
+          <tr>
+            <th scope="col" class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-0">Name</th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Type</th>
+            <th scope="col" class="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white sm:table-cell">Joined</th>
+            <th scope="col" class="relative py-3.5 pr-4 pl-3 sm:pr-0"><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-white/5">
+          {{#each items}}
+          <tr>
+            <td class="whitespace-nowrap py-4 pr-3 pl-4 text-sm font-medium text-gray-900 dark:text-white sm:pl-0">{{this.profile_name}}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm">
+              {{#if (eq this.member_type 'aspiring')}}
+              <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-yellow-600/20 ring-inset dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20">Aspiring</span>
+              {{else if (eq this.member_type 'founder')}}
+              <span class="inline-flex items-center rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-purple-700/10 ring-inset dark:bg-purple-400/10 dark:text-purple-400 dark:ring-purple-400/20">Founder</span>
+              {{else if (eq this.member_type 'honorary')}}
+              <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-700/10 ring-inset dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/20">Honorary</span>
+              {{else if (eq this.member_type 'regular')}}
+              <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-green-600/20 ring-inset dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20">Regular</span>
+              {{else}}
+              <span class="text-gray-500 dark:text-gray-400">{{this.member_type}}</span>
+              {{/if}}
+            </td>
+            <td class="hidden whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400 sm:table-cell">{{this.joined_at}}</td>
+            <td class="relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-0">
+              {{#if (eq this.member_type 'regular')}}
+              <a href="/admin/members/{{this.id}}/fees" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-3">Fees</a>
+              {{/if}}
+              <a href="/admin/members/{{this.id}}/edit" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">Edit</a>
+              <form method="POST" action="/admin/members/{{this.id}}/delete" class="inline ml-3">
+                <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300" onclick="return confirm('Delete this member?')">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {{/each}}
+          {{#unless items.length}}
+          <tr>
+            <td colspan="4" class="py-8 text-center text-sm text-gray-500 dark:text-gray-400">No members found.</td>
+          </tr>
+          {{/unless}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{{> pagination page=page totalPages=totalPages }}

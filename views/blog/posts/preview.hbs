@@ -1,0 +1,31 @@
+{{> blog_tabs tab=tab }}
+<div class="mx-auto max-w-3xl">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{post.title}}</h1>
+      {{#if post.published_at}}
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Published: {{post.published_at}}</p>
+      {{else}}
+      <p class="mt-1 text-sm text-yellow-600 dark:text-yellow-400">Draft — not published</p>
+      {{/if}}
+    </div>
+    <a href="/admin/blog/posts/{{post.id}}/edit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500">Edit</a>
+  </div>
+
+  {{#if post.summary}}
+  <div class="mt-6 rounded-md border border-gray-200 bg-gray-50 p-4 dark:border-white/10 dark:bg-white/5">
+    <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Summary</p>
+    <div class="prose prose-sm max-w-none dark:prose-invert">
+      {{{markdown post.summary}}}
+    </div>
+  </div>
+  {{/if}}
+
+  {{#if post.body}}
+  <div class="mt-8">
+    <div class="prose max-w-none dark:prose-invert">
+      {{{markdown post.body}}}
+    </div>
+  </div>
+  {{/if}}
+</div>

@@ -1,0 +1,57 @@
+<div class="mx-auto max-w-2xl">
+  <h1 class="text-base font-semibold text-gray-900 dark:text-white">{{#if isEdit}}Edit Activity{{else}}New Activity{{/if}}</h1>
+
+  <form method="POST" action="{{#if isEdit}}/admin/festival/activities/{{activity.id}}{{else}}/admin/festival/sections/{{section.id}}/activities{{/if}}" class="mt-8 space-y-6">
+    <div>
+      <label for="title" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Title <span class="text-red-500">*</span></label>
+      <div class="mt-2">
+        <input type="text" name="title" id="title" required value="{{activity.title}}"
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500" />
+      </div>
+    </div>
+
+    <div>
+      <label for="description" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Description</label>
+      <div class="mt-2">
+        <textarea name="description" id="description" rows="4"
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500">{{activity.description}}</textarea>
+      </div>
+    </div>
+
+    <div>
+      <label for="activity_type" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Activity Type <span class="text-red-500">*</span></label>
+      <div class="mt-2">
+        <select name="activity_type" id="activity_type" required
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500">
+          <option value="talk_panel" {{#if (eq activity.activity_type 'talk_panel')}}selected{{/if}}>Talk / Panel</option>
+          <option value="talk_keynote" {{#if (eq activity.activity_type 'talk_keynote')}}selected{{/if}}>Talk / Keynote</option>
+          <option value="installation" {{#if (eq activity.activity_type 'installation')}}selected{{/if}}>Installation</option>
+          <option value="workshop" {{#if (eq activity.activity_type 'workshop')}}selected{{/if}}>Workshop</option>
+          <option value="social_tour" {{#if (eq activity.activity_type 'social_tour')}}selected{{/if}}>Social / Tour</option>
+          <option value="social_dinner" {{#if (eq activity.activity_type 'social_dinner')}}selected{{/if}}>Social / Dinner</option>
+          <option value="social_concert" {{#if (eq activity.activity_type 'social_concert')}}selected{{/if}}>Social / Concert</option>
+          <option value="staff_roundup" {{#if (eq activity.activity_type 'staff_roundup')}}selected{{/if}}>Staff Roundup</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label for="audience" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Audience <span class="text-red-500">*</span></label>
+      <div class="mt-2">
+        <select name="audience" id="audience" required
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500">
+          <option value="public" {{#if (eq activity.audience 'public')}}selected{{/if}}>Public</option>
+          <option value="guests" {{#if (eq activity.audience 'guests')}}selected{{/if}}>Guests</option>
+          <option value="staff" {{#if (eq activity.audience 'staff')}}selected{{/if}}>Staff</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-x-4">
+      <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500">
+        {{#if isEdit}}Update{{else}}Create{{/if}}
+      </button>
+      <a href="/admin/festival/sections/{{section.id}}/activities" class="text-sm/6 font-semibold text-gray-900 dark:text-gray-300">Cancel</a>
+    </div>
+  </form>
+</div>

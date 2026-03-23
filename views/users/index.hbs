@@ -1,0 +1,69 @@
+<div class="sm:flex sm:items-center">
+  <div class="sm:flex-auto">
+    <h1 class="text-base font-semibold text-gray-900 dark:text-white">Users &amp; Roles</h1>
+    <p class="mt-2 text-sm text-gray-700 dark:text-gray-400">Manage platform users and RBAC roles.</p>
+  </div>
+  <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+    <a href="/admin/users/new" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-indigo-500">Add user</a>
+  </div>
+</div>
+
+<div class="mt-8 flow-root">
+  <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+    <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+      <table class="min-w-full divide-y divide-gray-300 dark:divide-white/10">
+        <thead>
+          <tr>
+            <th scope="col" class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-0">Username</th>
+            <th scope="col" class="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white sm:table-cell">Profile</th>
+            <th scope="col" class="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white md:table-cell">Created</th>
+            <th scope="col" class="relative py-3.5 pr-4 pl-3 sm:pr-0"><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-white/5">
+          {{#each items}}
+          <tr>
+            <td class="whitespace-nowrap py-4 pr-3 pl-4 text-sm font-medium text-gray-900 dark:text-white sm:pl-0">
+              {{this.username}}
+              <dl class="font-normal sm:hidden">
+                <dd class="mt-1 truncate text-gray-500 dark:text-gray-400">{{this.profile_name}}</dd>
+              </dl>
+            </td>
+            <td class="hidden whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400 sm:table-cell">{{this.profile_name}}</td>
+            <td class="hidden whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400 md:table-cell">{{this.created_at}}</td>
+            <td class="relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-0">
+              <a href="/admin/users/{{this.id}}/edit" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">Edit</a>
+              <form method="POST" action="/admin/users/{{this.id}}/delete" class="inline ml-3">
+                <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300" onclick="return confirm('Delete this user?')">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{{> pagination page=page totalPages=totalPages }}
+
+<div class="mt-12 border-t border-gray-200 pt-8 dark:border-white/10">
+  <h2 class="text-base font-semibold text-gray-900 dark:text-white">Roles</h2>
+  <div class="mt-4 flex flex-wrap gap-2">
+    {{#each roles}}
+    <span class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-600 dark:bg-white/10 dark:text-gray-300">
+      {{this.name}}
+      <form method="POST" action="/admin/users/roles/{{this.id}}/delete" class="inline">
+        <button type="submit" class="text-gray-400 hover:text-red-500" onclick="return confirm('Delete role {{this.name}}?')">
+          <svg class="size-4" viewBox="0 0 20 20" fill="currentColor"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" /></svg>
+        </button>
+      </form>
+    </span>
+    {{/each}}
+  </div>
+  <form method="POST" action="/admin/users/roles/create" class="mt-4 flex flex-col gap-2 sm:flex-row">
+    <input type="text" name="name" placeholder="New role name" required
+      class="block rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500" />
+    <button type="submit" class="rounded-md bg-gray-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-gray-500">Add role</button>
+  </form>
+</div>

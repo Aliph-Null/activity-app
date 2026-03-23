@@ -255,6 +255,8 @@ CREATE TABLE dojo_sessions (
 CREATE TABLE agreement_documents (
   id INTEGER PRIMARY KEY,
   name TEXT NOT NULL UNIQUE,
+  file_path TEXT,
+  original_filename TEXT,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

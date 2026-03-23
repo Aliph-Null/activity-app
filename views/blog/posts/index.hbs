@@ -1,0 +1,80 @@
+{{> blog_tabs tab=tab }}
+<div class="sm:flex sm:items-center">
+  <div class="sm:flex-auto">
+    <h1 class="text-base font-semibold text-gray-900 dark:text-white">Blog Posts</h1>
+    <p class="mt-2 text-sm text-gray-700 dark:text-gray-400">All published and draft blog posts.</p>
+  </div>
+  <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+    <a href="/admin/blog/posts/new" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-indigo-500">New post</a>
+  </div>
+</div>
+
+<div class="mt-4 flex items-center gap-3">
+  <label for="tag-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300">Filter by tag:</label>
+  <select id="tag-filter" onchange="window.location.href=this.value ? '/admin/blog?tag='+this.value : '/admin/blog'" class="rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500">
+    <option value="">All tags</option>
+    {{#each allTags}}
+    <option value="{{this.id}}" {{#if (eq this.id ../filterTag)}}selected{{/if}}>{{this.name}}</option>
+    {{/each}}
+  </select>
+  {{#if filterTag}}
+  <a href="/admin/blog" class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white">Clear filter</a>
+  {{/if}}
+</div>
+
+<div class="mt-4 flow-root">
+  <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+    <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+      <table class="min-w-full divide-y divide-gray-300 dark:divide-white/10">
+        <thead>
+          <tr>
+            <th scope="col" class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-0">Title</th>
+            <th scope="col" class="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white sm:table-cell">Slug</th>
+            <th scope="col" class="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white md:table-cell">Tags</th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Status</th>
+            <th scope="col" class="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white sm:table-cell">Created</th>
+            <th scope="col" class="relative py-3.5 pr-4 pl-3 sm:pr-0"><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-white/5">
+          {{#each items}}
+          <tr>
+            <td class="whitespace-nowrap py-4 pr-3 pl-4 text-sm font-medium text-gray-900 dark:text-white sm:pl-0">{{this.title}}</td>
+            <td class="hidden whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400 sm:table-cell">{{this.slug}}</td>
+            <td class="hidden px-3 py-4 text-sm text-gray-500 dark:text-gray-400 md:table-cell">
+              {{#if this.tags}}
+                {{#each (split this.tags ',')}}
+                  <span class="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-indigo-700/10 ring-inset dark:bg-indigo-400/10 dark:text-indigo-400 dark:ring-indigo-400/30 mr-1">{{this}}</span>
+                {{/each}}
+              {{else}}
+                <span class="text-gray-400 dark:text-gray-500">—</span>
+              {{/if}}
+            </td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm">
+              {{#if this.published_at}}
+                <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-green-600/20 ring-inset dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20">Published</span>
+              {{else}}
+                <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-yellow-600/20 ring-inset dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20">Draft</span>
+              {{/if}}
+            </td>
+            <td class="hidden whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400 sm:table-cell">{{this.created_at}}</td>
+            <td class="relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-0">
+              <a href="/admin/blog/posts/{{this.id}}/edit" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">Edit</a>
+              <form method="POST" action="/admin/blog/posts/{{this.id}}/delete" class="inline ml-3">
+                <button type="submit" onclick="return confirm('Are you sure?')" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {{/each}}
+          {{#unless items.length}}
+          <tr>
+            <td colspan="6" class="py-8 text-center text-sm text-gray-500 dark:text-gray-400">No posts found.</td>
+          </tr>
+          {{/unless}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{{> pagination page=page totalPages=totalPages }}

@@ -1,0 +1,232 @@
+{{> festival_edition_nav edition=edition festivalSubnav=festivalSubnav }}
+
+<div class="mx-auto max-w-4xl">
+  <div class="sm:flex sm:items-start sm:justify-between">
+    <div>
+      <h1 class="text-base font-semibold text-gray-900 dark:text-white">{{edition.year}}{{#if edition.title}} — {{edition.title}}{{/if}}</h1>
+      {{#if edition.theme}}<p class="mt-1 text-sm text-gray-700 dark:text-gray-400">{{edition.theme}}</p>{{/if}}
+      {{#if edition.blog_tag_name}}<p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Blog tag: <span class="font-medium text-gray-700 dark:text-gray-300">{{edition.blog_tag_name}}</span></p>{{/if}}
+    </div>
+    <div class="mt-4 flex flex-wrap gap-3 sm:mt-0">
+      <a href="/admin/festival/editions/{{edition.id}}/edit" class="text-sm font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">Edit edition</a>
+      <a href="/admin/festival/editions/{{edition.id}}/tickets" class="text-sm font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">Tickets</a>
+      <a href="/admin/festival" class="text-sm font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">All editions</a>
+    </div>
+  </div>
+
+  <p class="mt-4 rounded-md bg-indigo-50 p-3 text-sm text-indigo-900 dark:bg-indigo-500/10 dark:text-indigo-200">
+    <strong>Sections</strong> group activities (talks, workshops, etc.). Create at least one section, then open it to add activities.
+  </p>
+
+  {{! Sections }}
+  <section class="mt-10 rounded-lg border border-gray-200 p-4 dark:border-white/10">
+    <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Sections &amp; activities</h2>
+    <form method="POST" action="/admin/festival/editions/{{edition.id}}/sections" class="mt-3 flex flex-col gap-2 sm:flex-row sm:items-end">
+      <div class="flex-1">
+        <label for="section-name" class="sr-only">New section name</label>
+        <input type="text" name="name" id="section-name" placeholder="e.g. Main stage, Workshops, Kids" required autocomplete="off"
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500" />
+      </div>
+      <button type="submit" class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500">Add section</button>
+    </form>
+    <ul class="mt-4 space-y-2">
+      {{#each sections}}
+      <li class="flex flex-col gap-2 rounded-lg bg-white/5 px-3 py-3 sm:flex-row sm:items-center dark:bg-white/5">
+        <form method="POST" action="/admin/festival/sections/{{this.id}}" class="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
+          <input type="text" name="name" value="{{this.name}}" required
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10 sm:max-w-md" />
+          <button type="submit" class="shrink-0 text-sm font-medium text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Save name</button>
+        </form>
+        <div class="flex shrink-0 items-center gap-3">
+          <a href="/admin/festival/sections/{{this.id}}/activities" class="text-sm font-medium text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">{{this.activity_count}} activities →</a>
+          <form method="POST" action="/admin/festival/sections/{{this.id}}/delete" class="inline">
+            <button type="submit" class="text-sm text-red-600 hover:text-red-900 dark:text-red-400" onclick="return confirm('Delete this section and all its activities?')">Delete</button>
+          </form>
+        </div>
+      </li>
+      {{/each}}
+      {{#unless sections.length}}
+      <li class="py-6 text-center text-sm text-gray-500 dark:text-gray-400">No sections yet — add one above.</li>
+      {{/unless}}
+    </ul>
+  </section>
+
+  {{! Volunteers }}
+  <section class="mt-10">
+    <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Volunteers</h2>
+    {{#if volunteerCandidates.length}}
+    <form method="POST" action="/admin/festival/editions/{{edition.id}}/volunteers" class="mt-2 flex flex-col gap-2 sm:flex-row sm:items-end">
+      <div class="flex-1">
+        <label for="volunteer_profile_id" class="block text-xs font-medium text-gray-500 dark:text-gray-400">Add profile as volunteer</label>
+        <select name="profile_id" id="volunteer_profile_id" required
+          class="mt-1 block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10 sm:max-w-md">
+          <option value="">Select profile…</option>
+          {{#each volunteerCandidates}}
+          <option value="{{this.id}}">{{this.name}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <button type="submit" class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500">Add volunteer</button>
+    </form>
+    {{else}}
+    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">No profiles left to add (create profiles first, or everyone is already a volunteer).</p>
+    {{/if}}
+    <ul class="mt-4 space-y-2">
+      {{#each volunteers}}
+      <li class="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2 dark:bg-white/5">
+        <span class="text-sm text-gray-900 dark:text-white">{{this.profile_name}}</span>
+        <form method="POST" action="/admin/festival/volunteers/{{this.id}}/delete" class="inline">
+          <button type="submit" class="text-sm text-red-600 hover:text-red-900 dark:text-red-400" onclick="return confirm('Remove this volunteer?')">Remove</button>
+        </form>
+      </li>
+      {{/each}}
+      {{#unless volunteers.length}}
+      <li class="py-4 text-sm text-gray-500 dark:text-gray-400">No volunteers yet.</li>
+      {{/unless}}
+    </ul>
+  </section>
+
+  {{! Locations }}
+  <section class="mt-10">
+    <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Locations</h2>
+    <p class="mt-1">
+      <a href="/admin/festival/editions/{{edition.id}}/locations/new" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Add location</a>
+    </p>
+    <ul class="mt-2 space-y-2">
+      {{#each locations}}
+      <li class="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2 dark:bg-white/5">
+        <div>
+          <span class="text-sm font-medium text-gray-900 dark:text-white">{{this.name}}</span>
+          {{#if this.address}}<span class="ml-2 text-sm text-gray-500 dark:text-gray-400">{{this.address}}</span>{{/if}}
+          {{#if this.coordinator_name}}<span class="ml-2 text-sm text-gray-500 dark:text-gray-400">(coordinator: {{this.coordinator_name}})</span>{{/if}}
+        </div>
+        <span>
+          <a href="/admin/festival/locations/{{this.id}}/edit" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Edit</a>
+          <form method="POST" action="/admin/festival/locations/{{this.id}}/delete" class="inline ml-2">
+            <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400" onclick="return confirm('Are you sure?')">Delete</button>
+          </form>
+        </span>
+      </li>
+      {{/each}}
+      {{#unless locations.length}}
+      <li class="py-4 text-sm text-gray-500 dark:text-gray-400">No locations yet.</li>
+      {{/unless}}
+    </ul>
+  </section>
+
+  {{! Guests }}
+  <section class="mt-10">
+    <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Guests</h2>
+    <p class="mt-1">
+      <a href="/admin/festival/editions/{{edition.id}}/guests/new" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Add guest</a>
+    </p>
+    <ul class="mt-2 space-y-2">
+      {{#each guests}}
+      <li class="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2 dark:bg-white/5">
+        <div>
+          <span class="text-sm font-medium text-gray-900 dark:text-white">{{this.profile_name}}</span>
+          {{#if this.roles}}<span class="ml-2 text-sm text-gray-500 dark:text-gray-400">{{this.roles}}</span>{{/if}}
+        </div>
+        <span>
+          <a href="/admin/festival/guests/{{this.id}}/edit" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Edit</a>
+          <form method="POST" action="/admin/festival/guests/{{this.id}}/delete" class="inline ml-2">
+            <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400" onclick="return confirm('Are you sure?')">Delete</button>
+          </form>
+        </span>
+      </li>
+      {{/each}}
+      {{#unless guests.length}}
+      <li class="py-4 text-sm text-gray-500 dark:text-gray-400">No guests yet.</li>
+      {{/unless}}
+    </ul>
+  </section>
+
+  {{! Sponsors }}
+  <section class="mt-10">
+    <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Sponsors</h2>
+    <p class="mt-1">
+      <a href="/admin/festival/editions/{{edition.id}}/sponsors/new" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Add sponsor</a>
+    </p>
+    <ul class="mt-2 space-y-2">
+      {{#each sponsors}}
+      <li class="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2 dark:bg-white/5">
+        <div>
+          <span class="text-sm font-medium text-gray-900 dark:text-white">{{this.name}}</span>
+          <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">{{this.sponsorship_type}} / {{this.sponsorship_level}}</span>
+        </div>
+        <span>
+          <a href="/admin/festival/sponsors/{{this.id}}/edit" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Edit</a>
+          <a href="/admin/festival/sponsors/{{this.id}}/discounts" class="ml-2 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Discounts</a>
+          <form method="POST" action="/admin/festival/sponsors/{{this.id}}/delete" class="inline ml-2">
+            <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400" onclick="return confirm('Are you sure?')">Delete</button>
+          </form>
+        </span>
+      </li>
+      {{/each}}
+      {{#unless sponsors.length}}
+      <li class="py-4 text-sm text-gray-500 dark:text-gray-400">No sponsors yet.</li>
+      {{/unless}}
+    </ul>
+  </section>
+
+  {{! Program }}
+  <section class="mt-10">
+    <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Program</h2>
+    <p class="mt-1">
+      <a href="/admin/festival/editions/{{edition.id}}/program/new" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Add program entry</a>
+    </p>
+    <ul class="mt-2 space-y-2">
+      {{#each program}}
+      <li class="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2 dark:bg-white/5">
+        <div class="text-sm text-gray-900 dark:text-white">
+          {{this.starts_at}}{{#if this.ends_at}} – {{this.ends_at}}{{/if}}
+          | {{this.location_name}} | {{this.activity_title}}
+          {{#if this.presenters}} | {{this.presenters}}{{/if}}
+        </div>
+        <form method="POST" action="/admin/festival/program/{{this.id}}/delete" class="inline">
+          <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400" onclick="return confirm('Are you sure?')">Delete</button>
+        </form>
+      </li>
+      {{/each}}
+      {{#unless program.length}}
+      <li class="py-4 text-sm text-gray-500 dark:text-gray-400">No program entries yet.</li>
+      {{/unless}}
+    </ul>
+  </section>
+
+  {{! Staff Members }}
+  <section class="mt-10">
+    <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Staff members</h2>
+    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Members (org roster) assigned to this edition.</p>
+    {{#if staffCandidates.length}}
+    <form method="POST" action="/admin/festival/editions/{{edition.id}}/staff" class="mt-2 flex flex-col gap-2 sm:flex-row sm:items-end">
+      <div class="flex-1">
+        <label for="staff_member_id" class="block text-xs font-medium text-gray-500 dark:text-gray-400">Add member</label>
+        <select name="member_id" id="staff_member_id" required
+          class="mt-1 block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10 sm:max-w-md">
+          <option value="">Select member…</option>
+          {{#each staffCandidates}}
+          <option value="{{this.id}}">{{this.name}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <button type="submit" class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500">Add to staff</button>
+    </form>
+    {{else}}
+    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">No members left to add, or add members under <strong>Members</strong> in the sidebar first.</p>
+    {{/if}}
+    <ul class="mt-4 space-y-2">
+      {{#each staffMembers}}
+      <li class="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2 dark:bg-white/5">
+        <span class="text-sm text-gray-900 dark:text-white">{{this.member_name}}</span>
+        <form method="POST" action="/admin/festival/editions/{{../edition.id}}/staff/{{this.member_id}}/delete" class="inline">
+          <button type="submit" class="text-sm text-red-600 hover:text-red-900 dark:text-red-400" onclick="return confirm('Remove from staff?')">Remove</button>
+        </form>
+      </li>
+      {{/each}}
+      {{#unless staffMembers.length}}
+      <li class="py-4 text-sm text-gray-500 dark:text-gray-400">No staff members yet.</li>
+      {{/unless}}
+    </ul>
+  </section>
+</div>

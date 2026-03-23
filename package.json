@@ -1,0 +1,49 @@
+{
+  "name": "ai3-admin-dashboard",
+  "version": "0.1.0",
+  "description": "AI3 Admin Dashboard - NestJS SSR with Tailwind 4.2",
+  "private": true,
+  "scripts": {
+    "css:build": "npx @tailwindcss/cli -i src/styles/app.css -o public/css/app.css --minify",
+    "css:watch": "npx @tailwindcss/cli -i src/styles/app.css -o public/css/app.css --watch",
+    "build": "npm run css:build && nest build",
+    "start": "nest start",
+    "start:dev": "concurrently \"npm run css:watch\" \"nest start --watch\"",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "node dist/main"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1009.0",
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/passport": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "@tailwindcss/typography": "^0.5.19",
+    "@tailwindplus/elements": "^1.0.22",
+    "bcrypt": "^5.1.1",
+    "better-sqlite3": "^11.7.0",
+    "express-session": "^1.18.1",
+    "hbs": "^4.2.0",
+    "marked": "^17.0.4",
+    "multer": "^2.1.1",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.0",
+    "@nestjs/schematics": "^11.0.0",
+    "@tailwindcss/cli": "^4.2.1",
+    "@types/bcrypt": "^5.0.2",
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/express": "^5.0.0",
+    "@types/express-session": "^1.18.1",
+    "@types/multer": "^2.1.0",
+    "@types/node": "^22.0.0",
+    "@types/passport-local": "^1.0.38",
+    "concurrently": "^9.2.1",
+    "tailwindcss": "^4.2.1",
+    "typescript": "^5.7.0"
+  }
+}
