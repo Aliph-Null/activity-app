@@ -2,7 +2,7 @@
 <nav class="mt-6 flex items-center justify-between border-t border-gray-200 px-4 dark:border-white/10 sm:px-0">
   <div class="flex w-0 flex-1">
     {{#if (gt page 1)}}
-    <a href="?page={{sub page 1}}" class="inline-flex items-center border-t-2 border-transparent pt-4 pr-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-gray-200">
+    <a href="?page={{sub page 1}}{{#if extraQuery}}&amp;{{{extraQuery}}}{{/if}}" class="inline-flex items-center border-t-2 border-transparent pt-4 pr-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-gray-200">
       <svg class="mr-3 size-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" /></svg>
       Previous
     </a>
@@ -10,14 +10,14 @@
   </div>
   <div class="hidden md:flex">
     {{#each (range 1 totalPages)}}
-    <a href="?page={{this}}" class="inline-flex items-center border-t-2 px-4 pt-4 text-sm font-medium {{#if (eq this ../page)}}border-indigo-500 text-indigo-600 dark:text-indigo-400{{else}}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-gray-200{{/if}}">
+    <a href="?page={{this}}{{#if ../extraQuery}}&amp;{{{../extraQuery}}}{{/if}}" class="inline-flex items-center border-t-2 px-4 pt-4 text-sm font-medium {{#if (eq this ../page)}}border-indigo-500 text-indigo-600 dark:text-indigo-400{{else}}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-gray-200{{/if}}">
       {{this}}
     </a>
     {{/each}}
   </div>
   <div class="flex w-0 flex-1 justify-end">
     {{#if (lt page totalPages)}}
-    <a href="?page={{add page 1}}" class="inline-flex items-center border-t-2 border-transparent pt-4 pl-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-gray-200">
+    <a href="?page={{add page 1}}{{#if extraQuery}}&amp;{{{extraQuery}}}{{/if}}" class="inline-flex items-center border-t-2 border-transparent pt-4 pl-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-gray-200">
       Next
       <svg class="ml-3 size-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>
     </a>

@@ -67,6 +67,12 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       this.db.exec('ALTER TABLE agreement_documents ADD COLUMN file_path TEXT');
       this.db.exec('ALTER TABLE agreement_documents ADD COLUMN original_filename TEXT');
     }
+
+    const festActCols = this.db.prepare("PRAGMA table_info('festival_activities')").all() as any[];
+    const festActNames = festActCols.map((c) => c.name);
+    if (!festActNames.includes('guest_id')) {
+      this.db.exec('ALTER TABLE festival_activities ADD COLUMN guest_id INTEGER');
+    }
   }
 
   private seedAdmin() {

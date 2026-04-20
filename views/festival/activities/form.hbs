@@ -1,7 +1,53 @@
+{{#if edition}}
+{{> festival_edition_nav edition=edition festivalSubnav='activities'}}
+{{/if}}
+
 <div class="mx-auto max-w-2xl">
   <h1 class="text-base font-semibold text-gray-900 dark:text-white">{{#if isEdit}}Edit Activity{{else}}New Activity{{/if}}</h1>
 
-  <form method="POST" action="{{#if isEdit}}/admin/festival/activities/{{activity.id}}{{else}}/admin/festival/sections/{{section.id}}/activities{{/if}}" class="mt-8 space-y-6">
+  {{#if activityHub}}
+  {{#unless sections.length}}
+  <p class="mt-4 rounded-md bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-500/10 dark:text-amber-200">Add at least one section on the edition overview before creating activities.</p>
+  <p class="mt-4"><a href="/admin/festival/editions/{{edition.id}}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">Go to edition overview</a></p>
+  {{/unless}}
+  {{/if}}
+
+  {{#if (or (eq activityHub false) (gt sections.length 0))}}
+  <form method="POST" action="{{#if isEdit}}/admin/festival/activities/{{activity.id}}{{else}}{{#if activityHub}}/admin/festival/editions/{{edition.id}}/activities{{else}}/admin/festival/sections/{{section.id}}/activities{{/if}}{{/if}}" class="mt-8 space-y-6">
+    {{#if isEdit}}
+      {{#if returnTo}}<input type="hidden" name="return_to" value="{{returnTo}}" />{{/if}}
+    {{/if}}
+    {{#if isEdit}}
+      {{#if activityHub}}
+    <div>
+      <label for="section_id" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Section <span class="text-red-500">*</span></label>
+      <div class="mt-2">
+        <select name="section_id" id="section_id" required
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500">
+          {{#each sections}}
+          <option value="{{this.id}}" {{#if (eq this.id ../activity.section_id)}}selected{{/if}}>{{this.name}}</option>
+          {{/each}}
+        </select>
+      </div>
+    </div>
+      {{/if}}
+    {{else}}
+      {{#if activityHub}}
+    <div>
+      <label for="section_id" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Section <span class="text-red-500">*</span></label>
+      <div class="mt-2">
+        <select name="section_id" id="section_id" required
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500">
+          <option value="">Select section…</option>
+          {{#each sections}}
+          <option value="{{this.id}}">{{this.name}}</option>
+          {{/each}}
+        </select>
+      </div>
+    </div>
+      {{/if}}
+    {{/if}}
+
     <div>
       <label for="title" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Title <span class="text-red-500">*</span></label>
       <div class="mt-2">
@@ -47,11 +93,60 @@
       </div>
     </div>
 
+    {{#if guests.length}}
+    <div>
+      <label for="guest_id" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Linked guest (optional)</label>
+      <div class="mt-2">
+        <select name="guest_id" id="guest_id"
+          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500">
+          <option value="">None</option>
+          {{#each guests}}
+          <option value="{{this.id}}" {{#if (eq this.id ../activity.guest_id)}}selected{{/if}}>{{this.profile_name}}</option>
+          {{/each}}
+        </select>
+      </div>
+    </div>
+    {{/if}}
+
+    <fieldset class="rounded-lg border border-gray-200 p-4 dark:border-white/10">
+      <legend class="text-sm/6 font-medium text-gray-900 dark:text-gray-200">New guest profile (optional)</legend>
+      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">If you fill a name below, a profile and guest record are created and linked; leave blank to use the dropdown above only.</p>
+      <div class="mt-4 space-y-4">
+        <div>
+          <label for="new_guest_name" class="block text-xs font-medium text-gray-600 dark:text-gray-400">Name</label>
+          <input type="text" name="new_guest_name" id="new_guest_name"
+            class="mt-1 block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10" />
+        </div>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label for="new_guest_email" class="block text-xs font-medium text-gray-600 dark:text-gray-400">Email</label>
+            <input type="email" name="new_guest_email" id="new_guest_email"
+              class="mt-1 block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10" />
+          </div>
+          <div>
+            <label for="new_guest_phone" class="block text-xs font-medium text-gray-600 dark:text-gray-400">Phone</label>
+            <input type="text" name="new_guest_phone" id="new_guest_phone"
+              class="mt-1 block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10" />
+          </div>
+        </div>
+        <fieldset>
+          <legend class="text-xs font-medium text-gray-600 dark:text-gray-400">Roles for new guest</legend>
+          <div class="mt-2 flex flex-wrap gap-3">
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" name="new_guest_roles" value="speaker" checked class="size-4 rounded border-gray-300 text-indigo-600" /> Speaker</label>
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" name="new_guest_roles" value="workshop_org" class="size-4 rounded border-gray-300 text-indigo-600" /> Workshop org</label>
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" name="new_guest_roles" value="artist" class="size-4 rounded border-gray-300 text-indigo-600" /> Artist</label>
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" name="new_guest_roles" value="other" class="size-4 rounded border-gray-300 text-indigo-600" /> Other</label>
+          </div>
+        </fieldset>
+      </div>
+    </fieldset>
+
     <div class="flex items-center gap-x-4">
       <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500">
         {{#if isEdit}}Update{{else}}Create{{/if}}
       </button>
-      <a href="/admin/festival/sections/{{section.id}}/activities" class="text-sm/6 font-semibold text-gray-900 dark:text-gray-300">Cancel</a>
+      <a href="{{#if cancelHref}}{{cancelHref}}{{else}}{{#if activityHub}}/admin/festival/editions/{{edition.id}}/activities{{else}}/admin/festival/sections/{{section.id}}/activities{{/if}}{{/if}}" class="text-sm/6 font-semibold text-gray-900 dark:text-gray-300">Cancel</a>
     </div>
   </form>
+  {{/if}}
 </div>

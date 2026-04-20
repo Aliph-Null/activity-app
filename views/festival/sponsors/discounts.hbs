@@ -1,9 +1,13 @@
+{{#if edition}}
+{{> festival_edition_nav edition=edition festivalSubnav=festivalSubnav}}
+{{/if}}
+
 <div class="mx-auto max-w-4xl">
   <div class="sm:flex sm:items-center sm:justify-between">
     <div>
       <h1 class="text-base font-semibold text-gray-900 dark:text-white">Discount Locations: {{sponsor.name}}</h1>
       <p class="mt-2 text-sm text-gray-700 dark:text-gray-400">
-        <a href="/admin/festival/editions/{{edition.id}}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">&larr; Back to edition</a>
+        <a href="/admin/festival/editions/{{edition.id}}/sponsors" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">&larr; Back to sponsors</a>
       </p>
     </div>
   </div>
@@ -49,7 +53,7 @@
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-200 dark:divide-white/5">
-        {{#each discounts}}
+        {{#each items}}
         <tr>
           <td class="whitespace-nowrap py-4 pr-3 pl-4 text-sm font-medium text-gray-900 dark:text-white sm:pl-0">{{this.name}}</td>
           <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{this.address}}</td>
@@ -57,13 +61,13 @@
           <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{this.redeem_max}}</td>
           <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{this.redeem_count}}</td>
           <td class="relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-0">
-            <form method="POST" action="/admin/festival/sponsors/{{../sponsor.id}}/discounts/{{this.id}}/delete" class="inline">
+            <form method="POST" action="/admin/festival/discounts/{{this.id}}/delete" class="inline">
               <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400" onclick="return confirm('Are you sure?')">Delete</button>
             </form>
           </td>
         </tr>
         {{/each}}
-        {{#unless discounts.length}}
+        {{#unless items.length}}
         <tr>
           <td colspan="6" class="py-8 text-center text-sm text-gray-500 dark:text-gray-400">No discount locations yet.</td>
         </tr>

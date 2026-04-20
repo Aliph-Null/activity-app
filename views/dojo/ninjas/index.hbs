@@ -2,12 +2,25 @@
 <div class="sm:flex sm:items-center">
   <div class="sm:flex-auto">
     <h1 class="text-base font-semibold text-gray-900 dark:text-white">Ninjas</h1>
-    <p class="mt-2 text-sm text-gray-700 dark:text-gray-400">Dojo ninjas.</p>
+    <p class="mt-2 text-sm text-gray-700 dark:text-gray-400">Children enrolled in CoderDojo. <strong>Add ninja</strong> creates the child and guardian profiles and links them in one step; edit to update contact details and tutor agreements.</p>
   </div>
   <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
     <a href="/admin/dojo/ninjas/new" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-indigo-500">Add ninja</a>
   </div>
 </div>
+
+<form method="GET" action="/admin/dojo/ninjas" class="mt-6 flex flex-col gap-3 rounded-lg border border-gray-200 p-4 dark:border-white/10 sm:flex-row sm:items-end">
+  <div class="min-w-[16rem] flex-1">
+    <label for="q" class="block text-xs font-medium text-gray-500 dark:text-gray-400">Search ninja or tutor name</label>
+    <input type="search" name="q" id="q" value="{{q}}" placeholder="Name…"
+      class="mt-1 block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10" />
+  </div>
+  <div class="flex gap-2">
+    <button type="submit" class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500">Search</button>
+    <button type="button" class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+      onclick="window.location.href='/admin/dojo/ninjas'">Clear</button>
+  </div>
+</form>
 
 <div class="mt-8 flow-root">
   <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -15,10 +28,10 @@
       <table class="min-w-full divide-y divide-gray-300 dark:divide-white/10">
         <thead>
           <tr>
-            <th scope="col" class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-0">Name</th>
+            <th scope="col" class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-0">Ninja</th>
             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Tutor</th>
-            <th scope="col" class="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white md:table-cell">Useful Info</th>
-            <th scope="col" class="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white sm:table-cell">Created</th>
+            <th scope="col" class="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white sm:table-cell">Tutor agreements</th>
+            <th scope="col" class="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white md:table-cell">Registered</th>
             <th scope="col" class="relative py-3.5 pr-4 pl-3 sm:pr-0"><span class="sr-only">Actions</span></th>
           </tr>
         </thead>
@@ -26,20 +39,26 @@
           {{#each items}}
           <tr>
             <td class="whitespace-nowrap py-4 pr-3 pl-4 text-sm font-medium text-gray-900 dark:text-white sm:pl-0">{{this.profile_name}}</td>
-            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{this.tutor_name}}</td>
-            <td class="hidden px-3 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate md:table-cell">{{this.useful_info}}</td>
-            <td class="hidden whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400 sm:table-cell">{{this.created_at}}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-600 dark:text-gray-300">{{this.tutor_name}}</td>
+            <td class="hidden whitespace-nowrap px-3 py-4 text-sm sm:table-cell">
+              {{#if (gt this.tutor_agreement_signed_count 0)}}
+                <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-800 ring-1 ring-green-600/20 dark:bg-green-500/10 dark:text-green-300 dark:ring-green-500/30">Signed</span>
+              {{else}}
+                <span class="text-gray-500 dark:text-gray-400">—</span>
+              {{/if}}
+            </td>
+            <td class="hidden whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400 md:table-cell">{{this.created_at}}</td>
             <td class="relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-0">
               <a href="/admin/dojo/ninjas/{{this.id}}/edit" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">Edit</a>
               <form method="POST" action="/admin/dojo/ninjas/{{this.id}}/delete" class="inline ml-3">
-                <button type="submit" onclick="return confirm('Are you sure?')" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Delete</button>
+                <button type="submit" onclick="return confirm('Remove this ninja registration?')" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Delete</button>
               </form>
             </td>
           </tr>
           {{/each}}
           {{#unless items.length}}
           <tr>
-            <td colspan="5" class="py-8 text-center text-sm text-gray-500 dark:text-gray-400">No ninjas found.</td>
+            <td colspan="5" class="py-8 text-center text-sm text-gray-500 dark:text-gray-400">No ninjas yet. Use Add ninja to enter child and guardian details.</td>
           </tr>
           {{/unless}}
         </tbody>
@@ -48,4 +67,4 @@
   </div>
 </div>
 
-{{> pagination page=page totalPages=totalPages }}
+{{> pagination page=page totalPages=totalPages extraQuery=extraQuery }}

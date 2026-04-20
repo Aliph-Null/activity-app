@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
+import { ProfilesService } from '../profiles/profiles.service';
 
 const PAGE_SIZE = 20;
 
 @Injectable()
 export class FestivalService {
-  constructor(private readonly db: DatabaseService) {}
+  constructor(
+    private readonly db: DatabaseService,
+    private readonly profilesService: ProfilesService,
+  ) {}
 
   // ── Editions ─────────────────────────────────────────────────────────
 
@@ -77,8 +81,27 @@ export class FestivalService {
 
   getActivities(sectionId: number) {
     return this.db.getDb().prepare(`
-      SELECT * FROM festival_activities WHERE section_id = ? ORDER BY title
+      SELECT fa.*, gp.name AS guest_profile_name
+      FROM festival_activities fa
+      LEFT JOIN festival_guests fg ON fg.id = fa.guest_id
+      LEFT JOIN profiles gp ON gp.id = fg.profile_id
+      WHERE fa.section_id = ? ORDER BY fa.title
     `).all(sectionId);
+  }
+
+  /** All activities for an edition (hub list), with section and optional linked guest. */
+  getActivitiesForEdition(editionId: number) {
+    return this.db.getDb().prepare(`
+      SELECT fa.id, fa.section_id, fa.title, fa.description, fa.activity_type, fa.audience, fa.guest_id,
+        fs.name AS section_name,
+        gp.name AS guest_profile_name
+      FROM festival_activities fa
+      JOIN festival_sections fs ON fs.id = fa.section_id
+      LEFT JOIN festival_guests fg ON fg.id = fa.guest_id
+      LEFT JOIN profiles gp ON gp.id = fg.profile_id
+      WHERE fs.edition_id = ?
+      ORDER BY fs.name, fa.title
+    `).all(editionId);
   }
 
   findActivityById(id: number) {
@@ -90,15 +113,41 @@ export class FestivalService {
   }
 
   createActivity(data: any) {
+    const gid = data.guest_id != null && data.guest_id !== ''
+      ? parseInt(String(data.guest_id), 10)
+      : null;
     this.db.getDb().prepare(`
-      INSERT INTO festival_activities (section_id, title, description, activity_type, audience) VALUES (?, ?, ?, ?, ?)
-    `).run(data.section_id, data.title || null, data.description || null, data.activity_type, data.audience);
+      INSERT INTO festival_activities (section_id, title, description, activity_type, audience, guest_id)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).run(
+      data.section_id,
+      data.title || null,
+      data.description || null,
+      data.activity_type,
+      data.audience,
+      Number.isFinite(gid as number) ? gid : null,
+    );
   }
 
   updateActivity(id: number, data: any) {
+    const gid = data.guest_id != null && data.guest_id !== ''
+      ? parseInt(String(data.guest_id), 10)
+      : null;
+    const row = this.db.getDb().prepare('SELECT section_id FROM festival_activities WHERE id = ?').get(id) as any;
+    const sid = data.section_id != null && data.section_id !== ''
+      ? parseInt(String(data.section_id), 10)
+      : row?.section_id;
     this.db.getDb().prepare(`
-      UPDATE festival_activities SET title = ?, description = ?, activity_type = ?, audience = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?
-    `).run(data.title || null, data.description || null, data.activity_type, data.audience, id);
+      UPDATE festival_activities SET section_id = ?, title = ?, description = ?, activity_type = ?, audience = ?, guest_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?
+    `).run(
+      sid,
+      data.title || null,
+      data.description || null,
+      data.activity_type,
+      data.audience,
+      Number.isFinite(gid as number) ? gid : null,
+      id,
+    );
   }
 
   deleteActivity(id: number) {
@@ -127,6 +176,20 @@ export class FestivalService {
 
   createVolunteer(editionId: number, profileId: number) {
     this.db.getDb().prepare('INSERT INTO festival_volunteers (edition_id, profile_id) VALUES (?, ?)').run(editionId, profileId);
+  }
+
+  createVolunteerReturnId(editionId: number, profileId: number): number {
+    this.db.getDb().prepare('INSERT INTO festival_volunteers (edition_id, profile_id) VALUES (?, ?)').run(editionId, profileId);
+    return (this.db.getDb().prepare('SELECT last_insert_rowid() AS id').get() as any).id;
+  }
+
+  /** Create profile + volunteer row for an edition (e.g. location coordinator). */
+  createProfileAndVolunteer(
+    editionId: number,
+    profile: { name: string; email?: string; phone?: string; birth_date?: string },
+  ): number {
+    const profileId = Number(this.profilesService.create(profile));
+    return this.createVolunteerReturnId(editionId, profileId);
   }
 
   deleteVolunteer(id: number) {
@@ -202,15 +265,27 @@ export class FestivalService {
     `).all(editionId);
   }
 
-  createGuest(editionId: number, profileId: number, roles: string[]) {
+  createGuest(editionId: number, profileId: number, roles: string[]): number {
+    let guestId = 0;
     const tx = this.db.getDb().transaction(() => {
       this.db.getDb().prepare('INSERT INTO festival_guests (edition_id, profile_id) VALUES (?, ?)').run(editionId, profileId);
-      const guestId = (this.db.getDb().prepare('SELECT last_insert_rowid() AS id').get() as any).id;
+      guestId = (this.db.getDb().prepare('SELECT last_insert_rowid() AS id').get() as any).id;
       for (const role of roles) {
         this.db.getDb().prepare('INSERT INTO festival_guest_roles (guest_id, role) VALUES (?, ?)').run(guestId, role);
       }
     });
     tx();
+    return guestId;
+  }
+
+  /** Create profile + guest for an edition (e.g. from activity form). Returns guest id. */
+  createProfileAndGuest(
+    editionId: number,
+    profile: { name: string; email?: string; phone?: string; birth_date?: string },
+    roles: string[],
+  ): number {
+    const profileId = Number(this.profilesService.create(profile));
+    return this.createGuest(editionId, profileId, roles.length ? roles : ['other']);
   }
 
   updateGuestRoles(guestId: number, roles: string[]) {
@@ -316,6 +391,43 @@ export class FestivalService {
     this.db.getDb().prepare('DELETE FROM festival_program WHERE id = ?').run(id);
   }
 
+  findProgramEntryById(id: number) {
+    return this.db.getDb().prepare(`
+      SELECT fp.* FROM festival_program fp WHERE fp.id = ?
+    `).get(id) as any;
+  }
+
+  getProgramPresenterGuestIds(programId: number): number[] {
+    const rows = this.db.getDb().prepare(
+      'SELECT guest_id FROM festival_program_presenters WHERE program_id = ?',
+    ).all(programId) as { guest_id: number }[];
+    return rows.map((r) => r.guest_id);
+  }
+
+  updateProgramEntry(
+    id: number,
+    data: {
+      location_id: number;
+      activity_id: number;
+      starts_at: string;
+      ends_at: string | null;
+      presenter_ids: number[];
+    },
+  ) {
+    const tx = this.db.getDb().transaction(() => {
+      this.db.getDb().prepare(`
+        UPDATE festival_program SET location_id = ?, activity_id = ?, starts_at = ?, ends_at = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?
+      `).run(data.location_id, data.activity_id, data.starts_at, data.ends_at || null, id);
+      this.db.getDb().prepare('DELETE FROM festival_program_presenters WHERE program_id = ?').run(id);
+      for (const gid of data.presenter_ids || []) {
+        if (Number.isFinite(gid)) {
+          this.db.getDb().prepare('INSERT INTO festival_program_presenters (program_id, guest_id) VALUES (?, ?)').run(id, gid);
+        }
+      }
+    });
+    tx();
+  }
+
   // ── Tickets ──────────────────────────────────────────────────────────
 
   getTickets(editionId: number, page = 1) {
@@ -340,6 +452,31 @@ export class FestivalService {
 
   deleteTicket(id: number) {
     this.db.getDb().prepare('DELETE FROM festival_tickets WHERE id = ?').run(id);
+  }
+
+  getDiscountRedeemings(editionId: number, page = 1) {
+    const offset = (page - 1) * PAGE_SIZE;
+    const total = (
+      this.db.getDb().prepare(`
+        SELECT COUNT(*) AS cnt FROM festival_discount_redeemings dr
+        JOIN festival_tickets ft ON ft.id = dr.ticket_id
+        WHERE ft.edition_id = ?
+      `).get(editionId) as any
+    ).cnt;
+    const items = this.db.getDb().prepare(`
+      SELECT dr.id, dr.redeemed_at, dr.ticket_id, dr.discount_location_id,
+        ft.code AS ticket_code, p.name AS holder_name,
+        dl.name AS discount_location_name, fs.name AS sponsor_name
+      FROM festival_discount_redeemings dr
+      JOIN festival_tickets ft ON ft.id = dr.ticket_id
+      JOIN profiles p ON p.id = ft.holder_profile_id
+      JOIN festival_sponsor_discount_locations dl ON dl.id = dr.discount_location_id
+      JOIN festival_sponsors fs ON fs.id = dl.sponsor_id
+      WHERE ft.edition_id = ?
+      ORDER BY dr.redeemed_at DESC
+      LIMIT ? OFFSET ?
+    `).all(editionId, PAGE_SIZE, offset);
+    return { items, total, page, totalPages: Math.ceil(total / PAGE_SIZE) };
   }
 
   // ── Staff Members ────────────────────────────────────────────────────

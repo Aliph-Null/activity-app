@@ -1,46 +1,260 @@
-<div class="mx-auto max-w-2xl">
-  <h1 class="text-base font-semibold text-gray-900 dark:text-white">{{#if isEdit}}Edit Mentor{{else}}New Mentor{{/if}}</h1>
+{{> dojo_tabs tab=tab }}
 
-  <form method="POST" action="{{#if isEdit}}/admin/dojo/mentors/{{mentor.id}}{{else}}/admin/dojo/mentors{{/if}}" class="mt-8 space-y-6">
+<div class="mx-auto max-w-3xl">
+  <div class="sm:flex sm:items-start sm:justify-between">
+    <div>
+      <h1 class="text-base font-semibold text-gray-900 dark:text-white">{{#if isEdit}}Edit mentor{{else}}New mentor{{/if}}</h1>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{#if isEdit}}Update profile, description, and agreement signatures. The mentor profile link does not change.{{else}}Choose an existing profile or create one, then add agreement dates as needed.{{/if}}</p>
+    </div>
+  </div>
+
+  <form method="POST" action="{{#if isEdit}}/admin/dojo/mentors/{{mentor.id}}{{else}}/admin/dojo/mentors{{/if}}" id="mentor-form" class="mt-8 space-y-8">
     {{#if isEdit}}
-    <div>
-      <label class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Profile</label>
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{mentor.profile_name}}</p>
-    </div>
-    <div>
-      <label for="description" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Description</label>
-      <div class="mt-2">
-        <textarea name="description" id="description" rows="4"
-          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500">{{mentor.description}}</textarea>
+    <fieldset class="rounded-lg border border-gray-200 p-4 dark:border-white/10">
+      <legend class="px-1 text-sm font-semibold text-gray-900 dark:text-white">Profile</legend>
+      <div class="mt-4 space-y-4">
+        <div>
+          <label for="mentor_name" class="block text-sm/6 font-medium text-gray-900 dark:text-white">Name <span class="text-red-500">*</span></label>
+          <input type="text" name="mentor_name" id="mentor_name" required value="{{mentor.profile.name}}"
+            class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10" />
+        </div>
+        <div>
+          <label for="mentor_email" class="block text-sm/6 font-medium text-gray-900 dark:text-white">Email</label>
+          <input type="email" name="mentor_email" id="mentor_email" value="{{mentor.profile.email}}"
+            class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10" />
+        </div>
+        <div>
+          <label for="mentor_phone" class="block text-sm/6 font-medium text-gray-900 dark:text-white">Phone</label>
+          <input type="text" name="mentor_phone" id="mentor_phone" value="{{mentor.profile.phone}}"
+            class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10" />
+        </div>
+        <div>
+          <label for="mentor_birth_date" class="block text-sm/6 font-medium text-gray-900 dark:text-white">Birth date</label>
+          <input type="date" name="mentor_birth_date" id="mentor_birth_date" value="{{mentor.profile.birth_date}}"
+            class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:[color-scheme:dark]" />
+        </div>
       </div>
-    </div>
+    </fieldset>
     {{else}}
-    <div>
-      <label for="profile_id" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Profile <span class="text-red-500">*</span></label>
-      <div class="mt-2">
-        <select name="profile_id" id="profile_id" required
-          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500">
-          <option value="">Select a profile...</option>
-          {{#each profiles}}
-          <option value="{{this.id}}">{{this.name}}</option>
-          {{/each}}
-        </select>
+    {{#if profiles.length}}
+    <fieldset class="rounded-lg border border-gray-200 p-4 dark:border-white/10">
+      <legend class="px-1 text-sm font-semibold text-gray-900 dark:text-white">Profile source</legend>
+      <div class="mt-4 space-y-3">
+        <label class="flex cursor-pointer items-start gap-3 rounded-md border border-transparent p-2 hover:bg-gray-50 dark:hover:bg-white/5">
+          <input type="radio" name="mentor_profile_mode" value="existing" class="mt-1" id="mp_existing" checked />
+          <span>
+            <span class="block text-sm font-medium text-gray-900 dark:text-white">Existing profile</span>
+            <span class="block text-xs text-gray-500 dark:text-gray-400">Someone already in Profiles who is not a mentor yet</span>
+          </span>
+        </label>
+        <div id="block_mp_existing" class="ml-8">
+          <label for="profile_id" class="block text-xs font-medium text-gray-500 dark:text-gray-400">Profile</label>
+          <select name="profile_id" id="profile_id"
+            class="mt-1 block w-full max-w-md rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10">
+            <option value="">Select…</option>
+            {{#each profiles}}
+            <option value="{{this.id}}">{{this.name}}</option>
+            {{/each}}
+          </select>
+        </div>
+        <label class="flex cursor-pointer items-start gap-3 rounded-md border border-transparent p-2 hover:bg-gray-50 dark:hover:bg-white/5">
+          <input type="radio" name="mentor_profile_mode" value="new" class="mt-1" id="mp_new" />
+          <span>
+            <span class="block text-sm font-medium text-gray-900 dark:text-white">New profile</span>
+            <span class="block text-xs text-gray-500 dark:text-gray-400">Create a profile for this mentor</span>
+          </span>
+        </label>
+        <div id="block_mp_new" class="ml-8 hidden space-y-4">
+          <div>
+            <label for="mentor_name" class="block text-xs font-medium text-gray-500 dark:text-gray-400">Name <span class="text-red-500">*</span></label>
+            <input type="text" name="mentor_name" id="mentor_name_new" value=""
+              class="mt-1 block w-full max-w-md rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10" />
+          </div>
+          <div>
+            <label for="mentor_email_new" class="block text-xs font-medium text-gray-500 dark:text-gray-400">Email</label>
+            <input type="email" name="mentor_email" id="mentor_email_new" value=""
+              class="mt-1 block w-full max-w-md rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10" />
+          </div>
+          <div>
+            <label for="mentor_phone_new" class="block text-xs font-medium text-gray-500 dark:text-gray-400">Phone</label>
+            <input type="text" name="mentor_phone" id="mentor_phone_new" value=""
+              class="mt-1 block w-full max-w-md rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10" />
+          </div>
+          <div>
+            <label for="mentor_birth_date_new" class="block text-xs font-medium text-gray-500 dark:text-gray-400">Birth date</label>
+            <input type="date" name="mentor_birth_date" id="mentor_birth_date_new" value=""
+              class="mt-1 block w-full max-w-md rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:[color-scheme:dark]" />
+          </div>
+        </div>
       </div>
-    </div>
-    <div>
-      <label for="description" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Description</label>
-      <div class="mt-2">
-        <textarea name="description" id="description" rows="4"
-          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500">{{mentor.description}}</textarea>
+    </fieldset>
+    {{else}}
+    <input type="hidden" name="mentor_profile_mode" value="new" />
+    <fieldset class="rounded-lg border border-gray-200 p-4 dark:border-white/10">
+      <legend class="px-1 text-sm font-semibold text-gray-900 dark:text-white">New profile</legend>
+      <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">No eligible profiles found—enter details for a new profile.</p>
+      <div class="mt-4 space-y-4">
+        <div>
+          <label for="mentor_name" class="block text-sm/6 font-medium text-gray-900 dark:text-white">Name <span class="text-red-500">*</span></label>
+          <input type="text" name="mentor_name" id="mentor_name" required value=""
+            class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10" />
+        </div>
+        <div>
+          <label for="mentor_email" class="block text-sm/6 font-medium text-gray-900 dark:text-white">Email</label>
+          <input type="email" name="mentor_email" id="mentor_email" value=""
+            class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10" />
+        </div>
+        <div>
+          <label for="mentor_phone" class="block text-sm/6 font-medium text-gray-900 dark:text-white">Phone</label>
+          <input type="text" name="mentor_phone" id="mentor_phone" value=""
+            class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10" />
+        </div>
+        <div>
+          <label for="mentor_birth_date" class="block text-sm/6 font-medium text-gray-900 dark:text-white">Birth date</label>
+          <input type="date" name="mentor_birth_date" id="mentor_birth_date" value=""
+            class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:[color-scheme:dark]" />
+        </div>
       </div>
-    </div>
+    </fieldset>
     {{/if}}
+    {{/if}}
+
+    <div>
+      <label for="description" class="block text-sm/6 font-medium text-gray-900 dark:text-white">Description</label>
+      <textarea name="description" id="description" rows="4"
+        class="mt-2 block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10">{{mentor.description}}</textarea>
+    </div>
+
+    <fieldset id="mentor-agreements" class="rounded-lg border border-gray-200 p-4 dark:border-white/10">
+      <legend class="px-1 text-sm font-semibold text-gray-900 dark:text-white">Agreement signatures</legend>
+      <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Add each signed document and date. Saving replaces this mentor’s agreement list.</p>
+      {{#if agreementDocuments.length}}
+      <div id="mentor-sig-container" class="mt-4 space-y-3"></div>
+      <button type="button" id="mentor-sig-add"
+        class="mt-2 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-xs hover:bg-gray-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10">
+        Add agreement
+      </button>
+      <input type="hidden" name="mentor_signatures_json" id="mentor_signatures_json" value="[]" />
+      {{else}}
+      <p class="mt-4 text-sm text-amber-800 dark:text-amber-200/90">No agreement documents defined yet. Add files under <a href="/admin/dojo/documents" class="font-medium underline">Documents</a>.</p>
+      {{/if}}
+    </fieldset>
 
     <div class="flex items-center gap-x-4">
       <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500">
-        {{#if isEdit}}Update{{else}}Create{{/if}}
+        {{#if isEdit}}Save{{else}}Create{{/if}}
       </button>
-      <a href="/admin/dojo/mentors" class="text-sm/6 font-semibold text-gray-900 dark:text-gray-300">Cancel</a>
+      <button type="button" class="text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+        onclick="window.location.href='/admin/dojo/mentors'">Cancel</button>
     </div>
   </form>
 </div>
+
+<script>
+(function() {
+  var DOCS = {{{json agreementDocuments}}};
+  var INITIAL_ROWS = {{{json mentorSignatureRows}}};
+  function buildRow(docId, dateVal) {
+    var wrap = document.createElement('div');
+    wrap.className = 'mentor-sig-row flex flex-col gap-2 rounded-md border border-gray-200 p-3 sm:flex-row sm:items-end dark:border-white/10';
+    var sel = document.createElement('select');
+    sel.className = 'block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10 sm:max-w-md';
+    var opt0 = document.createElement('option');
+    opt0.value = '';
+    opt0.textContent = 'Select document…';
+    sel.appendChild(opt0);
+    for (var i = 0; i < DOCS.length; i++) {
+      var d = DOCS[i];
+      var o = document.createElement('option');
+      o.value = String(d.id);
+      o.textContent = d.name;
+      if (docId != null && docId !== '' && String(d.id) === String(docId)) o.selected = true;
+      sel.appendChild(o);
+    }
+    var inp = document.createElement('input');
+    inp.type = 'date';
+    inp.className = 'rounded-md border-0 bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:[color-scheme:dark] sm:w-40';
+    if (dateVal) inp.value = dateVal;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'shrink-0 text-sm font-semibold text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300';
+    btn.textContent = 'Remove';
+    btn.addEventListener('click', function() { wrap.remove(); });
+    var inner = document.createElement('div');
+    inner.className = 'flex flex-1 flex-col gap-1 sm:flex-row sm:items-end sm:gap-4';
+    var d1 = document.createElement('div');
+    d1.className = 'flex-1';
+    var l1 = document.createElement('label');
+    l1.className = 'block text-xs font-medium text-gray-500 dark:text-gray-400';
+    l1.textContent = 'Document';
+    d1.appendChild(l1);
+    d1.appendChild(sel);
+    var d2 = document.createElement('div');
+    var l2 = document.createElement('label');
+    l2.className = 'block text-xs font-medium text-gray-500 dark:text-gray-400';
+    l2.textContent = 'Signed on';
+    d2.appendChild(l2);
+    d2.appendChild(inp);
+    inner.appendChild(d1);
+    inner.appendChild(d2);
+    wrap.appendChild(inner);
+    wrap.appendChild(btn);
+    return wrap;
+  }
+  var form = document.getElementById('mentor-form');
+  var container = document.getElementById('mentor-sig-container');
+  var addBtn = document.getElementById('mentor-sig-add');
+  var hiddenJson = document.getElementById('mentor_signatures_json');
+  if (container && addBtn && hiddenJson && form) {
+    addBtn.addEventListener('click', function() { container.appendChild(buildRow('', '')); });
+    if (INITIAL_ROWS && INITIAL_ROWS.length) {
+      for (var j = 0; j < INITIAL_ROWS.length; j++) {
+        var r = INITIAL_ROWS[j];
+        container.appendChild(buildRow(r.document_id, r.signed_at || ''));
+      }
+    }
+    form.addEventListener('submit', function() {
+      var out = [];
+      var rows = container.querySelectorAll('.mentor-sig-row');
+      for (var k = 0; k < rows.length; k++) {
+        var row = rows[k];
+        var s = row.querySelector('select');
+        var inp = row.querySelector('input[type="date"]');
+        var did = parseInt(s && s.value ? s.value : '', 10);
+        var dt = inp && inp.value ? inp.value.trim() : '';
+        if (Number.isFinite(did) && dt.length >= 8) out.push({ document_id: did, signed_at: dt });
+      }
+      hiddenJson.value = JSON.stringify(out);
+    });
+  }
+  var ex = document.getElementById('mp_existing');
+  var nw = document.getElementById('mp_new');
+  if (ex && nw) {
+    function syncMp() {
+      var existing = ex.checked;
+      var sel = document.getElementById('profile_id');
+      var bEx = document.getElementById('block_mp_existing');
+      var bNw = document.getElementById('block_mp_new');
+      var nameNew = document.getElementById('mentor_name_new');
+      if (existing) {
+        bEx.classList.remove('hidden');
+        bNw.classList.add('hidden');
+        if (sel) { sel.disabled = false; sel.required = true; }
+        if (nameNew) nameNew.required = false;
+        bNw.querySelectorAll('input, select, textarea').forEach(function(el) { el.disabled = true; });
+        bEx.querySelectorAll('input, select, textarea').forEach(function(el) { el.disabled = false; });
+      } else {
+        bEx.classList.add('hidden');
+        bNw.classList.remove('hidden');
+        if (sel) { sel.disabled = true; sel.required = false; sel.value = ''; }
+        if (nameNew) nameNew.required = true;
+        bEx.querySelectorAll('input, select, textarea').forEach(function(el) { el.disabled = true; });
+        bNw.querySelectorAll('input, select, textarea').forEach(function(el) { el.disabled = false; });
+      }
+    }
+    ex.addEventListener('change', syncMp);
+    nw.addEventListener('change', syncMp);
+    syncMp();
+  }
+})();
+</script>

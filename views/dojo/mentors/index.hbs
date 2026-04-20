@@ -29,7 +29,6 @@
             <td class="hidden whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400 sm:table-cell">{{this.created_at}}</td>
             <td class="relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-0">
               <a href="/admin/dojo/mentors/{{this.id}}/edit" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">Edit</a>
-              <a href="/admin/dojo/mentors/{{this.id}}/signatures" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 ml-3">Signatures</a>
               <form method="POST" action="/admin/dojo/mentors/{{this.id}}/delete" class="inline ml-3">
                 <button type="submit" onclick="return confirm('Are you sure?')" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Delete</button>
               </form>

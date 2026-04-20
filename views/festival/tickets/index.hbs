@@ -9,6 +9,14 @@
   </div>
 </div>
 
+<nav class="mt-6 flex gap-2 border-b border-gray-200 pb-3 dark:border-white/10" aria-label="Tickets views">
+  <a href="/admin/festival/editions/{{edition.id}}/tickets{{#if (gt page 1)}}?page={{page}}{{/if}}"
+    class="rounded-md px-3 py-1.5 text-sm font-medium {{#if (eq activeTab 'tickets')}}bg-indigo-100 text-indigo-900 dark:bg-indigo-500/20 dark:text-indigo-200{{else}}text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/10{{/if}}">Tickets</a>
+  <a href="/admin/festival/editions/{{edition.id}}/tickets?tab=redeemings{{#if (gt redeemPage 1)}}&amp;page={{redeemPage}}{{/if}}"
+    class="rounded-md px-3 py-1.5 text-sm font-medium {{#if (eq activeTab 'redeemings')}}bg-indigo-100 text-indigo-900 dark:bg-indigo-500/20 dark:text-indigo-200{{else}}text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/10{{/if}}">Redeemings</a>
+</nav>
+
+{{#if (eq activeTab 'tickets')}}
 <form method="POST" action="/admin/festival/editions/{{edition.id}}/tickets" class="mt-6 flex flex-col gap-3 rounded-lg bg-white/5 p-4 sm:flex-row sm:items-end dark:bg-white/5">
   <div>
     <label for="holder_profile_id" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Holder</label>
@@ -68,3 +76,38 @@
 </div>
 
 {{> pagination page=page totalPages=totalPages }}
+{{/if}}
+
+{{#if (eq activeTab 'redeemings')}}
+<div class="mt-8 flow-root">
+  <table class="min-w-full divide-y divide-gray-300 dark:divide-white/10">
+    <thead>
+      <tr>
+        <th class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-0">Redeemed</th>
+        <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Ticket</th>
+        <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Holder</th>
+        <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Sponsor</th>
+        <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Location</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-200 dark:divide-white/5">
+      {{#each redeemItems}}
+      <tr>
+        <td class="whitespace-nowrap py-4 pr-3 pl-4 text-sm text-gray-900 dark:text-white sm:pl-0">{{this.redeemed_at}}</td>
+        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{this.ticket_code}}</td>
+        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{this.holder_name}}</td>
+        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{this.sponsor_name}}</td>
+        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{this.discount_location_name}}</td>
+      </tr>
+      {{/each}}
+      {{#unless redeemItems.length}}
+      <tr>
+        <td colspan="5" class="py-8 text-center text-sm text-gray-500 dark:text-gray-400">No redeemings yet.</td>
+      </tr>
+      {{/unless}}
+    </tbody>
+  </table>
+</div>
+
+{{> pagination page=redeemPage totalPages=redeemTotalPages extraQuery=redeemExtraQuery }}
+{{/if}}

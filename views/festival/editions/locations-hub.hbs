@@ -1,0 +1,41 @@
+{{#if edition}}
+{{> festival_edition_nav edition=edition festivalSubnav=festivalSubnav}}
+{{/if}}
+
+<div class="mx-auto max-w-4xl">
+  {{#unless edition}}
+  <p class="text-sm text-red-600 dark:text-red-400">Edition not found.</p>
+  <p class="mt-2"><a href="/admin/festival" class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">Back to editions</a></p>
+  {{else}}
+  <div class="sm:flex sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-base font-semibold text-gray-900 dark:text-white">Locations — {{edition.year}}</h1>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Venues and coordinators for this edition.</p>
+    </div>
+    <p class="mt-4 sm:mt-0">
+      <a href="/admin/festival/editions/{{edition.id}}/locations/new" class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500">New location</a>
+    </p>
+  </div>
+
+  <ul class="mt-8 space-y-2">
+    {{#each items}}
+    <li class="flex flex-col gap-2 rounded-lg border border-gray-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
+      <div>
+        <span class="text-sm font-medium text-gray-900 dark:text-white">{{this.name}}</span>
+        {{#if this.address}}<span class="ml-2 text-sm text-gray-500 dark:text-gray-400">{{this.address}}</span>{{/if}}
+        {{#if this.coordinator_name}}<span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">Coordinator: {{this.coordinator_name}}</span>{{/if}}
+      </div>
+      <div class="flex shrink-0 gap-3">
+        <a href="/admin/festival/locations/{{this.id}}/edit" class="text-sm font-medium text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Edit</a>
+        <form method="POST" action="/admin/festival/locations/{{this.id}}/delete" class="inline">
+          <button type="submit" class="text-sm text-red-600 hover:text-red-900 dark:text-red-400" onclick="return confirm('Delete this location?')">Delete</button>
+        </form>
+      </div>
+    </li>
+    {{/each}}
+    {{#unless items.length}}
+    <li class="py-8 text-center text-sm text-gray-500 dark:text-gray-400">No locations yet.</li>
+    {{/unless}}
+  </ul>
+  {{/unless}}
+</div>

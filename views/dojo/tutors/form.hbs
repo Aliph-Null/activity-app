@@ -1,3 +1,5 @@
+{{> dojo_tabs tab=tab }}
+
 <div class="mx-auto max-w-2xl">
   <h1 class="text-base font-semibold text-gray-900 dark:text-white">New Tutor</h1>
 
@@ -17,7 +19,8 @@
 
     <div class="flex items-center gap-x-4">
       <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500">Create</button>
-      <a href="/admin/dojo/tutors" class="text-sm/6 font-semibold text-gray-900 dark:text-gray-300">Cancel</a>
+      <button type="button" class="text-sm/6 font-semibold text-gray-900 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white"
+        onclick="window.location.href='/admin/dojo/tutors'">Cancel</button>
     </div>
   </form>
 </div>

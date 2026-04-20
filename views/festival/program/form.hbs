@@ -1,7 +1,11 @@
-<div class="mx-auto max-w-2xl">
-  <h1 class="text-base font-semibold text-gray-900 dark:text-white">New Program Entry</h1>
+{{#if edition}}
+{{> festival_edition_nav edition=edition festivalSubnav='program'}}
+{{/if}}
 
-  <form method="POST" action="/admin/festival/editions/{{edition.id}}/program" class="mt-8 space-y-6">
+<div class="mx-auto max-w-2xl">
+  <h1 class="text-base font-semibold text-gray-900 dark:text-white">{{#if isProgramEdit}}Edit Program Entry{{else}}New Program Entry{{/if}}</h1>
+
+  <form method="POST" action="{{#if isProgramEdit}}/admin/festival/program/{{program.id}}{{else}}/admin/festival/editions/{{edition.id}}/program{{/if}}" class="mt-8 space-y-6">
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
       <div>
         <label for="starts_at" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Starts At <span class="text-red-500">*</span></label>
@@ -63,8 +67,8 @@
     </fieldset>
 
     <div class="flex items-center gap-x-4">
-      <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500">Create</button>
-      <a href="/admin/festival/editions/{{edition.id}}" class="text-sm/6 font-semibold text-gray-900 dark:text-gray-300">Cancel</a>
+      <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500">{{#if isProgramEdit}}Update{{else}}Create{{/if}}</button>
+      <a href="{{#if cancelHref}}{{cancelHref}}{{else}}/admin/festival/editions/{{edition.id}}/program{{/if}}" class="text-sm/6 font-semibold text-gray-900 dark:text-gray-300">Cancel</a>
     </div>
   </form>
 </div>

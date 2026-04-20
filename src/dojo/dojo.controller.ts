@@ -2,6 +2,15 @@ import {
   Controller, Get, Post, Render, Req, Res,
   Param, Body, Query, UseGuards, UseInterceptors, UploadedFile,
 } from '@nestjs/common';
+
+function dojoListExtraQuery(params: Record<string, string | undefined>): string | undefined {
+  const u = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    if (v != null && String(v).trim() !== '') u.set(k, String(v).trim());
+  }
+  const s = u.toString();
+  return s || undefined;
+}
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthenticatedGuard } from '../auth/authenticated.guard';
 import { DojoService } from './dojo.service';
@@ -30,13 +39,20 @@ export class DojoController {
   @Get('mentors/new')
   @Render('dojo/mentors/form')
   newMentor(@Req() req: any) {
-    return this.ctx(req, { mentor: null, profiles: this.dojoService.getProfilesWithoutMentor(), isEdit: false });
+    return this.ctx(req, {
+      tab: 'mentors',
+      mentor: null,
+      profiles: this.dojoService.getProfilesWithoutMentor(),
+      isEdit: false,
+      agreementDocuments: this.dojoService.findAllDocuments(),
+      mentorSignatureRows: [],
+    });
   }
 
   @Post('mentors')
   createMentor(@Body() body: any, @Req() req: any, @Res() res: any) {
     try {
-      this.dojoService.createMentor({ profile_id: parseInt(body.profile_id, 10), description: body.description });
+      this.dojoService.registerMentor(body);
       req.flash('success', 'Mentor created.');
     } catch (e: any) { req.flash('error', e.message); }
     res.redirect('/admin/dojo/mentors');
@@ -44,14 +60,25 @@ export class DojoController {
 
   @Get('mentors/:id/edit')
   @Render('dojo/mentors/form')
-  editMentor(@Param('id') id: string, @Req() req: any) {
-    return this.ctx(req, { mentor: this.dojoService.findMentorById(parseInt(id, 10)), profiles: [], isEdit: true });
+  editMentor(@Param('id') id: string, @Req() req: any, @Res() res: any) {
+    const mentor = this.dojoService.findMentorWithProfile(parseInt(id, 10));
+    if (!mentor) {
+      req.flash('error', 'Mentor not found.');
+      return res.redirect('/admin/dojo/mentors');
+    }
+    return this.ctx(req, {
+      tab: 'mentors',
+      mentor,
+      isEdit: true,
+      agreementDocuments: this.dojoService.findAllDocuments(),
+      mentorSignatureRows: this.dojoService.getMentorSignatureRowsForWizard(mentor.id),
+    });
   }
 
   @Post('mentors/:id')
   updateMentor(@Param('id') id: string, @Body() body: any, @Req() req: any, @Res() res: any) {
     try {
-      this.dojoService.updateMentor(parseInt(id, 10), { description: body.description });
+      this.dojoService.updateMentorWizard(parseInt(id, 10), body);
       req.flash('success', 'Mentor updated.');
     } catch (e: any) { req.flash('error', e.message); }
     res.redirect('/admin/dojo/mentors');
@@ -67,30 +94,8 @@ export class DojoController {
   }
 
   @Get('mentors/:id/signatures')
-  @Render('dojo/signatures')
-  mentorSignatures(@Param('id') id: string, @Req() req: any) {
-    const mentor = this.dojoService.findMentorById(parseInt(id, 10));
-    const signatures = this.dojoService.getMentorSignatures(parseInt(id, 10));
-    const documents = this.dojoService.findAllDocuments();
-    return this.ctx(req, { entity: mentor, entityType: 'mentor', entityId: id, signatures, documents });
-  }
-
-  @Post('mentors/:id/signatures')
-  createMentorSignature(@Param('id') id: string, @Body() body: any, @Req() req: any, @Res() res: any) {
-    try {
-      this.dojoService.createMentorSignature(parseInt(id, 10), parseInt(body.document_id, 10), body.signed_at);
-      req.flash('success', 'Signature recorded.');
-    } catch (e: any) { req.flash('error', e.message); }
-    res.redirect(`/admin/dojo/mentors/${id}/signatures`);
-  }
-
-  @Post('mentors/:id/signatures/:sigId/delete')
-  deleteMentorSignature(@Param('id') id: string, @Param('sigId') sigId: string, @Req() req: any, @Res() res: any) {
-    try {
-      this.dojoService.deleteMentorSignature(parseInt(sigId, 10));
-      req.flash('success', 'Signature removed.');
-    } catch (e: any) { req.flash('error', e.message); }
-    res.redirect(`/admin/dojo/mentors/${id}/signatures`);
+  mentorSignaturesRedirect(@Param('id') id: string, @Res() res: any) {
+    res.redirect(302, `/admin/dojo/mentors/${id}/edit#mentor-agreements`);
   }
 
   // ── Tutors ───────────────────────────────────────────────────────────
@@ -104,7 +109,7 @@ export class DojoController {
   @Get('tutors/new')
   @Render('dojo/tutors/form')
   newTutor(@Req() req: any) {
-    return this.ctx(req, { profiles: this.dojoService.getProfilesWithoutTutor() });
+    return this.ctx(req, { tab: 'tutors', profiles: this.dojoService.getProfilesWithoutTutor() });
   }
 
   @Post('tutors')
@@ -156,36 +161,64 @@ export class DojoController {
 
   @Get('ninjas')
   @Render('dojo/ninjas/index')
-  ninjas(@Query('page') page: string, @Req() req: any) {
-    return this.ctx(req, { tab: 'ninjas', ...this.dojoService.findAllNinjas(parseInt(page, 10) || 1) });
+  ninjas(@Query('page') page: string, @Query('q') q: string, @Req() req: any) {
+    const extraQuery = dojoListExtraQuery({ q });
+    return this.ctx(req, {
+      tab: 'ninjas',
+      q: q || '',
+      extraQuery,
+      ...this.dojoService.findAllNinjas(parseInt(page, 10) || 1, q),
+    });
   }
 
   @Get('ninjas/new')
   @Render('dojo/ninjas/form')
   newNinja(@Req() req: any) {
-    return this.ctx(req, { ninja: null, profiles: this.dojoService.getProfiles(), tutors: this.dojoService.getAllTutors(), isEdit: false });
+    return this.ctx(req, {
+      tab: 'ninjas',
+      ninja: {
+        useful_info: '',
+        ninjaProfile: { name: '', email: '', phone: '', birth_date: '' },
+        tutorProfile: { name: '', email: '', phone: '', birth_date: '' },
+      },
+      isEdit: false,
+      agreementDocuments: this.dojoService.findAllDocuments(),
+      tutorSignatureRows: [],
+    });
   }
 
   @Post('ninjas')
   createNinja(@Body() body: any, @Req() req: any, @Res() res: any) {
     try {
-      this.dojoService.createNinja({ profile_id: parseInt(body.profile_id, 10), tutor_id: parseInt(body.tutor_id, 10), useful_info: body.useful_info });
-      req.flash('success', 'Ninja created.');
+      this.dojoService.registerNinjaWithTutor(body);
+      req.flash('success', 'Ninja registered with tutor and agreement dates saved.');
     } catch (e: any) { req.flash('error', e.message); }
     res.redirect('/admin/dojo/ninjas');
   }
 
   @Get('ninjas/:id/edit')
   @Render('dojo/ninjas/form')
-  editNinja(@Param('id') id: string, @Req() req: any) {
-    return this.ctx(req, { ninja: this.dojoService.findNinjaById(parseInt(id, 10)), profiles: [], tutors: this.dojoService.getAllTutors(), isEdit: true });
+  editNinja(@Param('id') id: string, @Req() req: any, @Res() res: any) {
+    const nid = parseInt(id, 10);
+    const ninja = this.dojoService.findNinjaWithProfiles(nid);
+    if (!ninja) {
+      req.flash('error', 'Ninja not found.');
+      return res.redirect('/admin/dojo/ninjas');
+    }
+    return this.ctx(req, {
+      tab: 'ninjas',
+      ninja,
+      isEdit: true,
+      agreementDocuments: this.dojoService.findAllDocuments(),
+      tutorSignatureRows: this.dojoService.getTutorSignatureRowsForWizard(ninja.tutor_id),
+    });
   }
 
   @Post('ninjas/:id')
   updateNinja(@Param('id') id: string, @Body() body: any, @Req() req: any, @Res() res: any) {
     try {
-      this.dojoService.updateNinja(parseInt(id, 10), { tutor_id: parseInt(body.tutor_id, 10), useful_info: body.useful_info });
-      req.flash('success', 'Ninja updated.');
+      this.dojoService.updateNinjaWizard(parseInt(id, 10), body);
+      req.flash('success', 'Ninja, tutor, and agreements updated.');
     } catch (e: any) { req.flash('error', e.message); }
     res.redirect('/admin/dojo/ninjas');
   }
@@ -203,14 +236,28 @@ export class DojoController {
 
   @Get('sessions')
   @Render('dojo/sessions/index')
-  sessions(@Query('page') page: string, @Req() req: any) {
-    return this.ctx(req, { tab: 'sessions', ...this.dojoService.findAllSessions(parseInt(page, 10) || 1) });
+  sessions(
+    @Query('page') page: string,
+    @Query('date_from') date_from: string,
+    @Query('date_to') date_to: string,
+    @Query('theme') theme: string,
+    @Req() req: any,
+  ) {
+    const extraQuery = dojoListExtraQuery({ date_from, date_to, theme });
+    return this.ctx(req, {
+      tab: 'sessions',
+      date_from: date_from || '',
+      date_to: date_to || '',
+      theme: theme || '',
+      extraQuery,
+      ...this.dojoService.findAllSessions(parseInt(page, 10) || 1, { date_from, date_to, theme }),
+    });
   }
 
   @Get('sessions/new')
   @Render('dojo/sessions/form')
   newSession(@Req() req: any) {
-    return this.ctx(req, { session: null, mentors: this.dojoService.getAllMentors(), isEdit: false });
+    return this.ctx(req, { tab: 'sessions', session: null, mentors: this.dojoService.getAllMentors(), isEdit: false });
   }
 
   @Post('sessions')
@@ -225,7 +272,12 @@ export class DojoController {
   @Get('sessions/:id/edit')
   @Render('dojo/sessions/form')
   editSession(@Param('id') id: string, @Req() req: any) {
-    return this.ctx(req, { session: this.dojoService.findSessionById(parseInt(id, 10)), mentors: this.dojoService.getAllMentors(), isEdit: true });
+    return this.ctx(req, {
+      tab: 'sessions',
+      session: this.dojoService.findSessionById(parseInt(id, 10)),
+      mentors: this.dojoService.getAllMentors(),
+      isEdit: true,
+    });
   }
 
   @Post('sessions/:id')
@@ -244,14 +296,6 @@ export class DojoController {
       req.flash('success', 'Session deleted.');
     } catch (e: any) { req.flash('error', e.message); }
     res.redirect('/admin/dojo/sessions');
-  }
-
-  // ── Blog posts ──────────────────────────────────────────────────────
-
-  @Get('blog')
-  @Render('dojo/blog/index')
-  blogPosts(@Req() req: any) {
-    return this.ctx(req, { tab: 'blog', posts: this.dojoService.getDojoRelatedPosts(), allTags: this.dojoService.getAllBlogTags() });
   }
 
   // ── Agreements overview ─────────────────────────────────────────────

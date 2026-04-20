@@ -1,0 +1,42 @@
+{{#if edition}}
+{{> festival_edition_nav edition=edition festivalSubnav=festivalSubnav}}
+{{/if}}
+
+<div class="mx-auto max-w-4xl">
+  {{#unless edition}}
+  <p class="text-sm text-red-600 dark:text-red-400">Edition not found.</p>
+  <p class="mt-2"><a href="/admin/festival" class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">Back to editions</a></p>
+  {{else}}
+  <div class="sm:flex sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-base font-semibold text-gray-900 dark:text-white">Sponsors — {{edition.year}}</h1>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Sponsors and partner discount locations.</p>
+    </div>
+    <p class="mt-4 sm:mt-0">
+      <a href="/admin/festival/editions/{{edition.id}}/sponsors/new" class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500">New sponsor</a>
+    </p>
+  </div>
+
+  <ul class="mt-8 space-y-2">
+    {{#each items}}
+    <li class="flex flex-col gap-2 rounded-lg border border-gray-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
+      <div>
+        <span class="text-sm font-medium text-gray-900 dark:text-white">{{this.name}}</span>
+        <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">{{this.sponsorship_type}} / {{this.sponsorship_level}}</span>
+        {{#if this.discount_count}}<span class="ml-2 text-xs text-gray-500 dark:text-gray-400">({{this.discount_count}} discount locations)</span>{{/if}}
+      </div>
+      <div class="flex shrink-0 flex-wrap gap-3">
+        <a href="/admin/festival/sponsors/{{this.id}}/edit" class="text-sm font-medium text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Edit</a>
+        <a href="/admin/festival/sponsors/{{this.id}}/discounts" class="text-sm font-medium text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Discounts</a>
+        <form method="POST" action="/admin/festival/sponsors/{{this.id}}/delete" class="inline">
+          <button type="submit" class="text-sm text-red-600 hover:text-red-900 dark:text-red-400" onclick="return confirm('Delete this sponsor?')">Delete</button>
+        </form>
+      </div>
+    </li>
+    {{/each}}
+    {{#unless items.length}}
+    <li class="py-8 text-center text-sm text-gray-500 dark:text-gray-400">No sponsors yet.</li>
+    {{/unless}}
+  </ul>
+  {{/unless}}
+</div>

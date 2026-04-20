@@ -1,0 +1,41 @@
+{{#if edition}}
+{{> festival_edition_nav edition=edition festivalSubnav=festivalSubnav}}
+{{/if}}
+
+<div class="mx-auto max-w-5xl">
+  {{#unless edition}}
+  <p class="text-sm text-red-600 dark:text-red-400">Edition not found.</p>
+  <p class="mt-2"><a href="/admin/festival" class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">Back to editions</a></p>
+  {{else}}
+  <div class="sm:flex sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-base font-semibold text-gray-900 dark:text-white">Program — {{edition.year}}</h1>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Schedule entries with locations, activities, and presenters.</p>
+    </div>
+    <p class="mt-4 sm:mt-0">
+      <a href="/admin/festival/editions/{{edition.id}}/program/new" class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500">New program entry</a>
+    </p>
+  </div>
+
+  <ul class="mt-8 space-y-2">
+    {{#each program}}
+    <li class="flex flex-col gap-3 rounded-lg border border-gray-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
+      <div class="text-sm text-gray-900 dark:text-white">
+        <span class="font-medium">{{this.starts_at}}</span>{{#if this.ends_at}} – {{this.ends_at}}{{/if}}
+        <span class="text-gray-600 dark:text-gray-400"> · {{this.location_name}} · {{this.activity_title}}</span>
+        {{#if this.presenter_names}}<span class="block mt-1 text-xs text-gray-500 dark:text-gray-400">{{this.presenter_names}}</span>{{/if}}
+      </div>
+      <div class="flex shrink-0 gap-3">
+        <a href="/admin/festival/program/{{this.id}}/edit" class="text-sm font-medium text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Edit</a>
+        <form method="POST" action="/admin/festival/program/{{this.id}}/delete" class="inline">
+          <button type="submit" class="text-sm text-red-600 hover:text-red-900 dark:text-red-400" onclick="return confirm('Delete this program entry?')">Delete</button>
+        </form>
+      </div>
+    </li>
+    {{/each}}
+    {{#unless program.length}}
+    <li class="py-8 text-center text-sm text-gray-500 dark:text-gray-400">No program entries yet.</li>
+    {{/unless}}
+  </ul>
+  {{/unless}}
+</div>

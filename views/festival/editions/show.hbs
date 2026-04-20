@@ -9,13 +9,35 @@
     </div>
     <div class="mt-4 flex flex-wrap gap-3 sm:mt-0">
       <a href="/admin/festival/editions/{{edition.id}}/edit" class="text-sm font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">Edit edition</a>
-      <a href="/admin/festival/editions/{{edition.id}}/tickets" class="text-sm font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">Tickets</a>
       <a href="/admin/festival" class="text-sm font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">All editions</a>
     </div>
   </div>
 
-  <p class="mt-4 rounded-md bg-indigo-50 p-3 text-sm text-indigo-900 dark:bg-indigo-500/10 dark:text-indigo-200">
-    <strong>Sections</strong> group activities (talks, workshops, etc.). Create at least one section, then open it to add activities.
+  <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <a href="/admin/festival/editions/{{edition.id}}/activities" class="rounded-lg border border-gray-200 p-4 transition hover:border-indigo-300 dark:border-white/10 dark:hover:border-indigo-500/40">
+      <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Activities</h2>
+      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Browse and edit all activities by section.</p>
+    </a>
+    <a href="/admin/festival/editions/{{edition.id}}/locations" class="rounded-lg border border-gray-200 p-4 transition hover:border-indigo-300 dark:border-white/10 dark:hover:border-indigo-500/40">
+      <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Locations</h2>
+      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Venues and coordinators.</p>
+    </a>
+    <a href="/admin/festival/editions/{{edition.id}}/program" class="rounded-lg border border-gray-200 p-4 transition hover:border-indigo-300 dark:border-white/10 dark:hover:border-indigo-500/40">
+      <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Program</h2>
+      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Schedule, edit entries, presenters.</p>
+    </a>
+    <a href="/admin/festival/editions/{{edition.id}}/sponsors" class="rounded-lg border border-gray-200 p-4 transition hover:border-indigo-300 dark:border-white/10 dark:hover:border-indigo-500/40">
+      <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Sponsors</h2>
+      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Sponsors and discount locations.</p>
+    </a>
+    <a href="/admin/festival/editions/{{edition.id}}/tickets" class="rounded-lg border border-gray-200 p-4 transition hover:border-indigo-300 dark:border-white/10 dark:hover:border-indigo-500/40 sm:col-span-2">
+      <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Tickets &amp; redeemings</h2>
+      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Ticket codes and sponsor discount redemptions.</p>
+    </a>
+  </div>
+
+  <p class="mt-10 rounded-md bg-indigo-50 p-3 text-sm text-indigo-900 dark:bg-indigo-500/10 dark:text-indigo-200">
+    <strong>Sections</strong> group activities (talks, workshops, etc.). Create at least one section, then add activities from the Activities page or per section below.
   </p>
 
   {{! Sections }}
@@ -86,35 +108,7 @@
     </ul>
   </section>
 
-  {{! Locations }}
-  <section class="mt-10">
-    <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Locations</h2>
-    <p class="mt-1">
-      <a href="/admin/festival/editions/{{edition.id}}/locations/new" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Add location</a>
-    </p>
-    <ul class="mt-2 space-y-2">
-      {{#each locations}}
-      <li class="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2 dark:bg-white/5">
-        <div>
-          <span class="text-sm font-medium text-gray-900 dark:text-white">{{this.name}}</span>
-          {{#if this.address}}<span class="ml-2 text-sm text-gray-500 dark:text-gray-400">{{this.address}}</span>{{/if}}
-          {{#if this.coordinator_name}}<span class="ml-2 text-sm text-gray-500 dark:text-gray-400">(coordinator: {{this.coordinator_name}})</span>{{/if}}
-        </div>
-        <span>
-          <a href="/admin/festival/locations/{{this.id}}/edit" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Edit</a>
-          <form method="POST" action="/admin/festival/locations/{{this.id}}/delete" class="inline ml-2">
-            <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400" onclick="return confirm('Are you sure?')">Delete</button>
-          </form>
-        </span>
-      </li>
-      {{/each}}
-      {{#unless locations.length}}
-      <li class="py-4 text-sm text-gray-500 dark:text-gray-400">No locations yet.</li>
-      {{/unless}}
-    </ul>
-  </section>
-
-  {{! Guests }}
+  {{! Guests (compact) }}
   <section class="mt-10">
     <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Guests</h2>
     <p class="mt-1">
@@ -137,59 +131,6 @@
       {{/each}}
       {{#unless guests.length}}
       <li class="py-4 text-sm text-gray-500 dark:text-gray-400">No guests yet.</li>
-      {{/unless}}
-    </ul>
-  </section>
-
-  {{! Sponsors }}
-  <section class="mt-10">
-    <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Sponsors</h2>
-    <p class="mt-1">
-      <a href="/admin/festival/editions/{{edition.id}}/sponsors/new" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Add sponsor</a>
-    </p>
-    <ul class="mt-2 space-y-2">
-      {{#each sponsors}}
-      <li class="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2 dark:bg-white/5">
-        <div>
-          <span class="text-sm font-medium text-gray-900 dark:text-white">{{this.name}}</span>
-          <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">{{this.sponsorship_type}} / {{this.sponsorship_level}}</span>
-        </div>
-        <span>
-          <a href="/admin/festival/sponsors/{{this.id}}/edit" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Edit</a>
-          <a href="/admin/festival/sponsors/{{this.id}}/discounts" class="ml-2 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Discounts</a>
-          <form method="POST" action="/admin/festival/sponsors/{{this.id}}/delete" class="inline ml-2">
-            <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400" onclick="return confirm('Are you sure?')">Delete</button>
-          </form>
-        </span>
-      </li>
-      {{/each}}
-      {{#unless sponsors.length}}
-      <li class="py-4 text-sm text-gray-500 dark:text-gray-400">No sponsors yet.</li>
-      {{/unless}}
-    </ul>
-  </section>
-
-  {{! Program }}
-  <section class="mt-10">
-    <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Program</h2>
-    <p class="mt-1">
-      <a href="/admin/festival/editions/{{edition.id}}/program/new" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Add program entry</a>
-    </p>
-    <ul class="mt-2 space-y-2">
-      {{#each program}}
-      <li class="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2 dark:bg-white/5">
-        <div class="text-sm text-gray-900 dark:text-white">
-          {{this.starts_at}}{{#if this.ends_at}} – {{this.ends_at}}{{/if}}
-          | {{this.location_name}} | {{this.activity_title}}
-          {{#if this.presenters}} | {{this.presenters}}{{/if}}
-        </div>
-        <form method="POST" action="/admin/festival/program/{{this.id}}/delete" class="inline">
-          <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400" onclick="return confirm('Are you sure?')">Delete</button>
-        </form>
-      </li>
-      {{/each}}
-      {{#unless program.length}}
-      <li class="py-4 text-sm text-gray-500 dark:text-gray-400">No program entries yet.</li>
       {{/unless}}
     </ul>
   </section>
