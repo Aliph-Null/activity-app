@@ -50,45 +50,22 @@
                     </a>
                   </li>
                   <li>
-                    <div class="px-2 pb-1 text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">Festival</div>
+                    <div class="px-2 pb-1 text-xs font-semibold tracking-wide text-gray-500 uppercase">Festival</div>
                     <ul class="space-y-0.5 border-l border-white/10 pl-3">
                       <li>
-                        <a href="/admin/festival" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'editions')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Editions</a>
+                        <a href="/admin/festival" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'overview')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Overview</a>
                       </li>
                       <li>
-                        {{#if festivalNavEditionId}}
-                        <a href="/admin/festival/editions/{{festivalNavEditionId}}/activities" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'activities')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Activities</a>
-                        {{else}}
-                        <span class="block cursor-default py-1 text-sm/6 text-gray-600" title="Choose an edition from Editions">Activities</span>
-                        {{/if}}
+                        <a href="/admin/festival/guests" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'guests')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Guests</a>
                       </li>
                       <li>
-                        {{#if festivalNavEditionId}}
-                        <a href="/admin/festival/editions/{{festivalNavEditionId}}/locations" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'locations')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Locations</a>
-                        {{else}}
-                        <span class="block cursor-default py-1 text-sm/6 text-gray-600" title="Choose an edition from Editions">Locations</span>
-                        {{/if}}
+                        <a href="/admin/festival/locations" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'locations')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Locations</a>
                       </li>
                       <li>
-                        {{#if festivalNavEditionId}}
-                        <a href="/admin/festival/editions/{{festivalNavEditionId}}/program" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'program')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Program</a>
-                        {{else}}
-                        <span class="block cursor-default py-1 text-sm/6 text-gray-600" title="Choose an edition from Editions">Program</span>
-                        {{/if}}
+                        <a href="/admin/festival/sponsors" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'sponsors')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Sponsors</a>
                       </li>
                       <li>
-                        {{#if festivalNavEditionId}}
-                        <a href="/admin/festival/editions/{{festivalNavEditionId}}/sponsors" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'sponsors')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Sponsors</a>
-                        {{else}}
-                        <span class="block cursor-default py-1 text-sm/6 text-gray-600" title="Choose an edition from Editions">Sponsors</span>
-                        {{/if}}
-                      </li>
-                      <li>
-                        {{#if festivalNavEditionId}}
-                        <a href="/admin/festival/editions/{{festivalNavEditionId}}/tickets" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'tickets')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Tickets</a>
-                        {{else}}
-                        <span class="block cursor-default py-1 text-sm/6 text-gray-600" title="Choose an edition from Editions">Tickets</span>
-                        {{/if}}
+                        <a href="/admin/festival/tickets" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'tickets')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Tickets</a>
                       </li>
                     </ul>
                   </li>
@@ -169,45 +146,22 @@
               </a>
             </li>
             <li>
-              <div class="px-2 pb-1 text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">Festival</div>
+              <div class="px-2 pb-1 text-xs font-semibold tracking-wide text-gray-500 uppercase">Festival</div>
               <ul class="space-y-0.5 border-l border-white/10 pl-3">
                 <li>
-                  <a href="/admin/festival" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'editions')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Editions</a>
+                  <a href="/admin/festival" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'overview')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Overview</a>
                 </li>
                 <li>
-                  {{#if festivalNavEditionId}}
-                  <a href="/admin/festival/editions/{{festivalNavEditionId}}/activities" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'activities')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Activities</a>
-                  {{else}}
-                  <span class="block cursor-default py-1 text-sm/6 text-gray-600" title="Choose an edition from Editions">Activities</span>
-                  {{/if}}
+                  <a href="/admin/festival/guests" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'guests')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Guests</a>
                 </li>
                 <li>
-                  {{#if festivalNavEditionId}}
-                  <a href="/admin/festival/editions/{{festivalNavEditionId}}/locations" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'locations')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Locations</a>
-                  {{else}}
-                  <span class="block cursor-default py-1 text-sm/6 text-gray-600" title="Choose an edition from Editions">Locations</span>
-                  {{/if}}
+                  <a href="/admin/festival/locations" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'locations')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Locations</a>
                 </li>
                 <li>
-                  {{#if festivalNavEditionId}}
-                  <a href="/admin/festival/editions/{{festivalNavEditionId}}/program" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'program')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Program</a>
-                  {{else}}
-                  <span class="block cursor-default py-1 text-sm/6 text-gray-600" title="Choose an edition from Editions">Program</span>
-                  {{/if}}
+                  <a href="/admin/festival/sponsors" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'sponsors')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Sponsors</a>
                 </li>
                 <li>
-                  {{#if festivalNavEditionId}}
-                  <a href="/admin/festival/editions/{{festivalNavEditionId}}/sponsors" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'sponsors')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Sponsors</a>
-                  {{else}}
-                  <span class="block cursor-default py-1 text-sm/6 text-gray-600" title="Choose an edition from Editions">Sponsors</span>
-                  {{/if}}
-                </li>
-                <li>
-                  {{#if festivalNavEditionId}}
-                  <a href="/admin/festival/editions/{{festivalNavEditionId}}/tickets" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'tickets')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Tickets</a>
-                  {{else}}
-                  <span class="block cursor-default py-1 text-sm/6 text-gray-600" title="Choose an edition from Editions">Tickets</span>
-                  {{/if}}
+                  <a href="/admin/festival/tickets" class="block rounded-md py-1 text-sm/6 font-medium {{#if (eq festivalSubsection 'tickets')}}text-white{{else}}text-gray-400 hover:text-white{{/if}}">Tickets</a>
                 </li>
               </ul>
             </li>

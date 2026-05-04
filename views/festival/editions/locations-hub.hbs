@@ -1,11 +1,9 @@
-{{#if edition}}
-{{> festival_edition_nav edition=edition festivalSubnav=festivalSubnav}}
-{{/if}}
+{{> festival_edition_nav }}
 
 <div class="mx-auto max-w-4xl">
   {{#unless edition}}
   <p class="text-sm text-red-600 dark:text-red-400">Edition not found.</p>
-  <p class="mt-2"><a href="/admin/festival" class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">Back to editions</a></p>
+  <p class="mt-2"><a href="/admin/festival" class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">Back to overview</a></p>
   {{else}}
   <div class="sm:flex sm:items-center sm:justify-between">
     <div>
@@ -17,25 +15,37 @@
     </p>
   </div>
 
-  <ul class="mt-8 space-y-2">
-    {{#each items}}
-    <li class="flex flex-col gap-2 rounded-lg border border-gray-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
-      <div>
-        <span class="text-sm font-medium text-gray-900 dark:text-white">{{this.name}}</span>
-        {{#if this.address}}<span class="ml-2 text-sm text-gray-500 dark:text-gray-400">{{this.address}}</span>{{/if}}
-        {{#if this.coordinator_name}}<span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">Coordinator: {{this.coordinator_name}}</span>{{/if}}
-      </div>
-      <div class="flex shrink-0 gap-3">
-        <a href="/admin/festival/locations/{{this.id}}/edit" class="text-sm font-medium text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Edit</a>
-        <form method="POST" action="/admin/festival/locations/{{this.id}}/delete" class="inline">
-          <button type="submit" class="text-sm text-red-600 hover:text-red-900 dark:text-red-400" onclick="return confirm('Delete this location?')">Delete</button>
-        </form>
-      </div>
-    </li>
-    {{/each}}
-    {{#unless items.length}}
-    <li class="py-8 text-center text-sm text-gray-500 dark:text-gray-400">No locations yet.</li>
-    {{/unless}}
-  </ul>
+  <div class="mt-8 flow-root">
+    <table class="min-w-full divide-y divide-gray-300 dark:divide-white/10">
+      <thead>
+        <tr>
+          <th scope="col" class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-0">Name</th>
+          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Address</th>
+          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Coordinator</th>
+          <th scope="col" class="relative py-3.5 pr-4 pl-3 sm:pr-0"><span class="sr-only">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200 dark:divide-white/5">
+        {{#each items}}
+        <tr>
+          <td class="whitespace-nowrap py-4 pr-3 pl-4 text-sm font-medium text-gray-900 dark:text-white sm:pl-0">{{this.name}}</td>
+          <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{this.address}}</td>
+          <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{#if this.coordinator_name}}{{this.coordinator_name}}{{else}}—{{/if}}</td>
+          <td class="relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-0">
+            <a href="/admin/festival/locations/{{this.id}}/edit" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Edit</a>
+            <form method="POST" action="/admin/festival/locations/{{this.id}}/delete" class="ml-3 inline">
+              <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400" onclick="return confirm('Delete this location?')">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {{/each}}
+        {{#unless items.length}}
+        <tr>
+          <td colspan="4" class="py-8 text-center text-sm text-gray-500 dark:text-gray-400">No locations yet.</td>
+        </tr>
+        {{/unless}}
+      </tbody>
+    </table>
+  </div>
   {{/unless}}
 </div>

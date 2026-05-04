@@ -1,0 +1,49 @@
+{{> festival_edition_nav }}
+
+<div class="mx-auto max-w-4xl">
+  {{#unless edition}}
+  <p class="text-sm text-red-600 dark:text-red-400">Edition not found.</p>
+  <p class="mt-2"><a href="/admin/festival" class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">Back to overview</a></p>
+  {{else}}
+  <div class="sm:flex sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-base font-semibold text-gray-900 dark:text-white">Guests — {{edition.year}}</h1>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Speakers, artists, and workshop organizers.</p>
+    </div>
+    <p class="mt-4 sm:mt-0">
+      <a href="/admin/festival/editions/{{edition.id}}/guests/new" class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500">New guest</a>
+    </p>
+  </div>
+
+  <div class="mt-8 flow-root">
+    <table class="min-w-full divide-y divide-gray-300 dark:divide-white/10">
+      <thead>
+        <tr>
+          <th scope="col" class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-0">Name</th>
+          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Roles</th>
+          <th scope="col" class="relative py-3.5 pr-4 pl-3 sm:pr-0"><span class="sr-only">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200 dark:divide-white/5">
+        {{#each items}}
+        <tr>
+          <td class="whitespace-nowrap py-4 pr-3 pl-4 text-sm font-medium text-gray-900 dark:text-white sm:pl-0">{{this.profile_name}}</td>
+          <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{{this.roles}}</td>
+          <td class="relative whitespace-nowrap py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-0">
+            <a href="/admin/festival/guests/{{this.id}}/edit" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Edit</a>
+            <form method="POST" action="/admin/festival/guests/{{this.id}}/delete" class="ml-3 inline">
+              <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400" onclick="return confirm('Remove this guest?')">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {{/each}}
+        {{#unless items.length}}
+        <tr>
+          <td colspan="3" class="py-8 text-center text-sm text-gray-500 dark:text-gray-400">No guests yet.</td>
+        </tr>
+        {{/unless}}
+      </tbody>
+    </table>
+  </div>
+  {{/unless}}
+</div>

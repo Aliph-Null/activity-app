@@ -1,0 +1,15 @@
+{{#if allEditions.length}}
+<form method="POST" action="/admin/festival/current-edition" class="inline-flex max-w-full items-center gap-2">
+  <input type="hidden" name="return_to" value="{{switchEditionReturnTo}}" />
+  <label for="festival-edition-switch" class="sr-only">Current edition</label>
+  <select name="edition_id" id="festival-edition-switch" onchange="this.form.submit()"
+    class="block min-w-[12rem] max-w-full rounded-md border border-gray-300 bg-white py-1.5 pr-8 pl-3 text-sm font-medium text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/20 dark:bg-white/10 dark:text-white dark:focus:ring-indigo-400">
+    {{#each allEditions}}
+    <option value="{{this.id}}" class="bg-white text-gray-900 dark:bg-gray-900 dark:text-white"
+      {{#if ../edition}}{{#if (eq this.id ../edition.id)}}selected{{/if}}{{else}}{{#if (eq this.id ../festivalNavEditionId)}}selected{{/if}}{{/if}}>
+      {{this.year}}{{#if this.title}} — {{this.title}}{{/if}}
+    </option>
+    {{/each}}
+  </select>
+</form>
+{{/if}}

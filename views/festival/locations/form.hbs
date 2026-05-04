@@ -1,9 +1,35 @@
-{{#if edition}}
-{{> festival_edition_nav edition=edition festivalSubnav='locations'}}
-{{/if}}
-
 <div class="mx-auto max-w-2xl">
   <h1 class="text-base font-semibold text-gray-900 dark:text-white">{{#if isEdit}}Edit Location{{else}}New Location{{/if}}</h1>
+
+  {{#unless isEdit}}
+  {{#if previousLocations.length}}
+  <div class="mt-6 rounded-md border border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-400/30 dark:bg-indigo-900/20">
+    <label for="copy_from" class="block text-sm font-medium text-indigo-900 dark:text-indigo-300">Copy from previous year</label>
+    <div class="mt-2 flex items-center gap-3">
+      <select id="copy_from"
+        class="block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500">
+        <option value="">Select a location to copy...</option>
+        {{#each previousLocations}}
+        <option value="{{this.id}}"
+          data-name="{{this.name}}"
+          data-address="{{this.address}}"
+          data-description="{{this.description}}">{{this.name}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <p class="mt-1 text-xs text-indigo-700 dark:text-indigo-400">Copies name, address & description. Coordinator is not copied.</p>
+  </div>
+  <script>
+    document.getElementById('copy_from').addEventListener('change', function() {
+      var opt = this.options[this.selectedIndex];
+      if (!opt.value) return;
+      document.getElementById('name').value = opt.dataset.name || '';
+      document.getElementById('address').value = opt.dataset.address || '';
+      document.getElementById('description').value = opt.dataset.description || '';
+    });
+  </script>
+  {{/if}}
+  {{/unless}}
 
   <form method="POST" action="{{#if isEdit}}/admin/festival/locations/{{location.id}}{{else}}/admin/festival/editions/{{edition.id}}/locations{{/if}}" class="mt-8 space-y-6">
     <div>

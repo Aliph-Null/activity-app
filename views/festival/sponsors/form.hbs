@@ -1,47 +1,49 @@
-<div class="mx-auto max-w-2xl">
+<div class="mx-auto max-w-4xl">
   <h1 class="text-base font-semibold text-gray-900 dark:text-white">{{#if isEdit}}Edit Sponsor{{else}}New Sponsor{{/if}}</h1>
 
   <form method="POST" action="{{#if isEdit}}/admin/festival/sponsors/{{sponsor.id}}{{else}}/admin/festival/editions/{{edition.id}}/sponsors{{/if}}" class="mt-8 space-y-6">
-    <div>
-      <label for="name" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Name <span class="text-red-500">*</span></label>
-      <div class="mt-2">
-        <input type="text" name="name" id="name" required value="{{sponsor.name}}"
-          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500" />
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <div>
+        <label for="name" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Name <span class="text-red-500">*</span></label>
+        <div class="mt-2">
+          <input type="text" name="name" id="name" required value="{{sponsor.name}}"
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500" />
+        </div>
       </div>
-    </div>
 
-    <div>
-      <label for="sponsorship_type" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Sponsorship Type <span class="text-red-500">*</span></label>
-      <div class="mt-2">
-        <select name="sponsorship_type" id="sponsorship_type" required
-          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500">
-          <option value="media" {{#if (eq sponsor.sponsorship_type 'media')}}selected{{/if}}>Media</option>
-          <option value="institution" {{#if (eq sponsor.sponsorship_type 'institution')}}selected{{/if}}>Institution</option>
-          <option value="catering" {{#if (eq sponsor.sponsorship_type 'catering')}}selected{{/if}}>Catering</option>
-          <option value="publishing" {{#if (eq sponsor.sponsorship_type 'publishing')}}selected{{/if}}>Publishing</option>
-          <option value="other" {{#if (eq sponsor.sponsorship_type 'other')}}selected{{/if}}>Other</option>
-        </select>
+      <div>
+        <label for="website" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Website</label>
+        <div class="mt-2">
+          <input type="url" name="website" id="website" value="{{sponsor.website}}"
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500" />
+        </div>
       </div>
-    </div>
 
-    <div>
-      <label for="sponsorship_level" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Sponsorship Level <span class="text-red-500">*</span></label>
-      <div class="mt-2">
-        <select name="sponsorship_level" id="sponsorship_level" required
-          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500">
-          <option value="whisperer" {{#if (eq sponsor.sponsorship_level 'whisperer')}}selected{{/if}}>Whisperer</option>
-          <option value="charmer" {{#if (eq sponsor.sponsorship_level 'charmer')}}selected{{/if}}>Charmer</option>
-          <option value="loudspeaker" {{#if (eq sponsor.sponsorship_level 'loudspeaker')}}selected{{/if}}>Loudspeaker</option>
-          <option value="difffusion_voice" {{#if (eq sponsor.sponsorship_level 'difffusion_voice')}}selected{{/if}}>Diffusion Voice</option>
-        </select>
+      <div>
+        <label for="sponsorship_type" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Sponsorship Type <span class="text-red-500">*</span></label>
+        <div class="mt-2">
+          <select name="sponsorship_type" id="sponsorship_type" required
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500">
+            <option value="media" {{#if (eq sponsor.sponsorship_type 'media')}}selected{{/if}}>Media</option>
+            <option value="institution" {{#if (eq sponsor.sponsorship_type 'institution')}}selected{{/if}}>Institution</option>
+            <option value="catering" {{#if (eq sponsor.sponsorship_type 'catering')}}selected{{/if}}>Catering</option>
+            <option value="publishing" {{#if (eq sponsor.sponsorship_type 'publishing')}}selected{{/if}}>Publishing</option>
+            <option value="other" {{#if (eq sponsor.sponsorship_type 'other')}}selected{{/if}}>Other</option>
+          </select>
+        </div>
       </div>
-    </div>
 
-    <div>
-      <label for="website" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Website</label>
-      <div class="mt-2">
-        <input type="url" name="website" id="website" value="{{sponsor.website}}"
-          class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500" />
+      <div>
+        <label for="sponsorship_level" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-200">Sponsorship Level <span class="text-red-500">*</span></label>
+        <div class="mt-2">
+          <select name="sponsorship_level" id="sponsorship_level" required
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:focus:outline-indigo-500">
+            <option value="whisperer" {{#if (eq sponsor.sponsorship_level 'whisperer')}}selected{{/if}}>Whisperer</option>
+            <option value="charmer" {{#if (eq sponsor.sponsorship_level 'charmer')}}selected{{/if}}>Charmer</option>
+            <option value="loudspeaker" {{#if (eq sponsor.sponsorship_level 'loudspeaker')}}selected{{/if}}>Loudspeaker</option>
+            <option value="difffusion_voice" {{#if (eq sponsor.sponsorship_level 'difffusion_voice')}}selected{{/if}}>Diffusion Voice</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -52,4 +54,125 @@
       <a href="{{#if cancelHref}}{{cancelHref}}{{else}}/admin/festival/editions/{{edition.id}}/sponsors{{/if}}" class="text-sm/6 font-semibold text-gray-900 dark:text-gray-300">Cancel</a>
     </div>
   </form>
+
+  {{#if isEdit}}
+  <div class="mt-12 border-t border-gray-200 pt-8 dark:border-white/10">
+    <h2 class="text-base font-semibold text-gray-900 dark:text-white">Discount Locations</h2>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Locations where ticket holders can redeem discounts from this sponsor.</p>
+
+    <form method="POST" action="/admin/festival/sponsors/{{sponsor.id}}/discounts" class="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-white/10 dark:bg-white/5">
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-5">
+        <div>
+          <label for="dl_name" class="block text-xs font-medium text-gray-600 dark:text-gray-400">Name</label>
+          <input type="text" name="name" id="dl_name" required
+            class="mt-1 block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10" />
+        </div>
+        <div>
+          <label for="dl_address" class="block text-xs font-medium text-gray-600 dark:text-gray-400">Address</label>
+          <input type="text" name="address" id="dl_address"
+            class="mt-1 block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10" />
+        </div>
+        <div>
+          <label for="dl_pct" class="block text-xs font-medium text-gray-600 dark:text-gray-400">Discount %</label>
+          <input type="number" name="discount_percent" id="dl_pct" required min="1" max="100"
+            class="mt-1 block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10" />
+        </div>
+        <div>
+          <label for="dl_max" class="block text-xs font-medium text-gray-600 dark:text-gray-400">Max Redeems</label>
+          <input type="number" name="redeem_max" id="dl_max" required min="1"
+            class="mt-1 block w-full rounded-md bg-white px-3 py-1.5 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10" />
+        </div>
+        <div class="flex items-end">
+          <button type="submit" class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500">Add</button>
+        </div>
+      </div>
+    </form>
+
+    <div class="mt-6 flow-root">
+      <table class="min-w-full divide-y divide-gray-300 dark:divide-white/10">
+        <thead>
+          <tr>
+            <th class="py-3 pr-3 pl-0 text-left text-xs font-semibold text-gray-900 dark:text-white">Name</th>
+            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-900 dark:text-white">Address</th>
+            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-900 dark:text-white">Discount %</th>
+            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-900 dark:text-white">Max</th>
+            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-900 dark:text-white">Used</th>
+            <th class="relative py-3 pr-0 pl-3"><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-white/5">
+          {{#each discounts}}
+          <tr data-discount-id="{{this.id}}">
+            <td class="py-3 pr-3 pl-0 text-sm">
+              <span class="dl-display font-medium text-gray-900 dark:text-white">{{this.name}}</span>
+              <input type="text" name="name" value="{{this.name}}" class="dl-edit hidden w-full rounded-md bg-white px-2 py-1 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10" />
+            </td>
+            <td class="px-3 py-3 text-sm text-gray-500 dark:text-gray-400">
+              <span class="dl-display">{{this.address}}</span>
+              <input type="text" name="address" value="{{this.address}}" class="dl-edit hidden w-full rounded-md bg-white px-2 py-1 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10" />
+            </td>
+            <td class="px-3 py-3 text-sm text-gray-500 dark:text-gray-400">
+              <span class="dl-display">{{this.discount_percent}}%</span>
+              <input type="number" name="discount_percent" value="{{this.discount_percent}}" min="1" max="100" class="dl-edit hidden w-20 rounded-md bg-white px-2 py-1 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10" />
+            </td>
+            <td class="px-3 py-3 text-sm text-gray-500 dark:text-gray-400">
+              <span class="dl-display">{{this.redeem_max}}</span>
+              <input type="number" name="redeem_max" value="{{this.redeem_max}}" min="1" class="dl-edit hidden w-20 rounded-md bg-white px-2 py-1 text-sm text-gray-900 outline-1 -outline-offset-1 outline-gray-300 dark:bg-white/5 dark:text-white dark:outline-white/10" />
+            </td>
+            <td class="px-3 py-3 text-sm text-gray-500 dark:text-gray-400">{{this.redeem_count}}</td>
+            <td class="relative py-3 pr-0 pl-3 text-right text-sm font-medium">
+              <button type="button" class="dl-edit-btn text-indigo-600 hover:text-indigo-900 dark:text-indigo-400" onclick="toggleEditDiscount(this)">Edit</button>
+              <button type="button" class="dl-save-btn hidden text-green-600 hover:text-green-900 dark:text-green-400" onclick="saveDiscount(this)">Save</button>
+              <button type="button" class="dl-cancel-btn hidden ml-2 text-gray-500 hover:text-gray-700 dark:text-gray-400" onclick="cancelEditDiscount(this)">Cancel</button>
+              <form method="POST" action="/admin/festival/discounts/{{this.id}}/delete" class="inline ml-2">
+                <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400" onclick="return confirm('Delete this discount location?')">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {{/each}}
+          {{#unless discounts.length}}
+          <tr>
+            <td colspan="6" class="py-6 text-center text-sm text-gray-500 dark:text-gray-400">No discount locations yet.</td>
+          </tr>
+          {{/unless}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function toggleEditDiscount(btn) {
+      var row = btn.closest('tr');
+      row.querySelectorAll('.dl-display').forEach(function(el) { el.classList.add('hidden'); });
+      row.querySelectorAll('.dl-edit').forEach(function(el) { el.classList.remove('hidden'); });
+      row.querySelector('.dl-edit-btn').classList.add('hidden');
+      row.querySelector('.dl-save-btn').classList.remove('hidden');
+      row.querySelector('.dl-cancel-btn').classList.remove('hidden');
+    }
+    function cancelEditDiscount(btn) {
+      var row = btn.closest('tr');
+      row.querySelectorAll('.dl-display').forEach(function(el) { el.classList.remove('hidden'); });
+      row.querySelectorAll('.dl-edit').forEach(function(el) { el.classList.add('hidden'); });
+      row.querySelector('.dl-edit-btn').classList.remove('hidden');
+      row.querySelector('.dl-save-btn').classList.add('hidden');
+      row.querySelector('.dl-cancel-btn').classList.add('hidden');
+    }
+    function saveDiscount(btn) {
+      var row = btn.closest('tr');
+      var id = row.dataset.discountId;
+      var form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/admin/festival/discounts/' + id;
+      row.querySelectorAll('.dl-edit[name]').forEach(function(input) {
+        var hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = input.name;
+        hidden.value = input.value;
+        form.appendChild(hidden);
+      });
+      document.body.appendChild(form);
+      form.submit();
+    }
+  </script>
+  {{/if}}
 </div>

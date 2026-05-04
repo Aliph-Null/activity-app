@@ -31,6 +31,83 @@ export class FestivalService {
     `).get(id) as any;
   }
 
+  /** Latest edition by year desc, then id desc. */
+  findLatestEditionId(): number | null {
+    const row = this.db.getDb().prepare(`
+      SELECT id FROM festival_editions ORDER BY year DESC, id DESC LIMIT 1
+    `).get() as { id: number } | undefined;
+    return row?.id ?? null;
+  }
+
+  countTicketsForEdition(editionId: number): number {
+    return (
+      this.db.getDb().prepare('SELECT COUNT(*) AS cnt FROM festival_tickets WHERE edition_id = ?').get(editionId) as any
+    ).cnt;
+  }
+
+  /**
+   * Program rows with ids for linking, calendar day, location coordinator (site lead).
+   */
+  getProgramScheduleRows(editionId: number) {
+    return this.db.getDb().prepare(`
+      SELECT fp.id AS program_id, fp.starts_at, fp.ends_at,
+        date(fp.starts_at) AS program_date,
+        fa.id AS activity_id, fa.title AS activity_title,
+        fl.id AS location_id, fl.name AS location_name,
+        fv.id AS coordinator_volunteer_id,
+        pcoord.name AS coordinator_name
+      FROM festival_program fp
+      JOIN festival_locations fl ON fl.id = fp.location_id
+      JOIN festival_activities fa ON fa.id = fp.activity_id
+      LEFT JOIN festival_volunteers fv ON fv.id = fl.coordinator_id
+      LEFT JOIN profiles pcoord ON pcoord.id = fv.profile_id
+      WHERE fp.edition_id = ?
+      ORDER BY fp.starts_at
+    `).all(editionId) as any[];
+  }
+
+  getProgramScheduleRowsPaginated(editionId: number, page = 1, pageSize = 25) {
+    const total = (
+      this.db.getDb().prepare('SELECT COUNT(*) AS cnt FROM festival_program WHERE edition_id = ?').get(editionId) as any
+    ).cnt;
+    const offset = (page - 1) * pageSize;
+    const rows = this.db.getDb().prepare(`
+      SELECT fp.id AS program_id, fp.starts_at, fp.ends_at,
+        date(fp.starts_at) AS program_date,
+        fa.id AS activity_id, fa.title AS activity_title,
+        fl.id AS location_id, fl.name AS location_name,
+        fv.id AS coordinator_volunteer_id,
+        pcoord.name AS coordinator_name
+      FROM festival_program fp
+      JOIN festival_locations fl ON fl.id = fp.location_id
+      JOIN festival_activities fa ON fa.id = fp.activity_id
+      LEFT JOIN festival_volunteers fv ON fv.id = fl.coordinator_id
+      LEFT JOIN profiles pcoord ON pcoord.id = fv.profile_id
+      WHERE fp.edition_id = ?
+      ORDER BY fp.starts_at
+      LIMIT ? OFFSET ?
+    `).all(editionId, pageSize, offset) as any[];
+    return {
+      rows,
+      total,
+      page,
+      totalPages: Math.max(1, Math.ceil(total / pageSize)),
+    };
+  }
+
+  /** Presenters per program row for an edition (for linking). */
+  getProgramPresenterRowsForEdition(editionId: number) {
+    return this.db.getDb().prepare(`
+      SELECT fpp.program_id, fg.id AS guest_id, p.name AS profile_name
+      FROM festival_program_presenters fpp
+      JOIN festival_program fp ON fp.id = fpp.program_id
+      JOIN festival_guests fg ON fg.id = fpp.guest_id
+      JOIN profiles p ON p.id = fg.profile_id
+      WHERE fp.edition_id = ?
+      ORDER BY fpp.program_id, p.name
+    `).all(editionId) as { program_id: number; guest_id: number; profile_name: string }[];
+  }
+
   getAllBlogTags() {
     return this.db.getDb().prepare('SELECT id, name FROM blog_tags ORDER BY name').all();
   }
@@ -213,6 +290,21 @@ export class FestivalService {
     return this.db.getDb().prepare('SELECT * FROM festival_locations WHERE id = ?').get(id);
   }
 
+  getLocationsFromPreviousEdition(currentEditionId: number) {
+    const currentEdition = this.findEditionById(currentEditionId);
+    if (!currentEdition) return [];
+    const prevEdition = this.db.getDb().prepare(`
+      SELECT id FROM festival_editions WHERE year < ? ORDER BY year DESC LIMIT 1
+    `).get(currentEdition.year) as { id: number } | undefined;
+    if (!prevEdition) return [];
+    return this.db.getDb().prepare(`
+      SELECT fl.id, fl.name, fl.address, fl.description
+      FROM festival_locations fl
+      WHERE fl.edition_id = ?
+      ORDER BY fl.name
+    `).all(prevEdition.id);
+  }
+
   createLocation(data: any) {
     this.db.getDb().prepare(`
       INSERT INTO festival_locations (edition_id, name, address, description, coordinator_id) VALUES (?, ?, ?, ?, ?)
@@ -346,6 +438,16 @@ export class FestivalService {
     this.db.getDb().prepare(`
       INSERT INTO festival_sponsor_discount_locations (sponsor_id, name, address, discount_percent, redeem_max) VALUES (?, ?, ?, ?, ?)
     `).run(data.sponsor_id, data.name, data.address || null, data.discount_percent, data.redeem_max);
+  }
+
+  findDiscountLocationById(id: number) {
+    return this.db.getDb().prepare('SELECT * FROM festival_sponsor_discount_locations WHERE id = ?').get(id) as any;
+  }
+
+  updateDiscountLocation(id: number, data: { name: string; address: string; discount_percent: number; redeem_max: number }) {
+    this.db.getDb().prepare(`
+      UPDATE festival_sponsor_discount_locations SET name = ?, address = ?, discount_percent = ?, redeem_max = ? WHERE id = ?
+    `).run(data.name, data.address || null, data.discount_percent, data.redeem_max, id);
   }
 
   deleteDiscountLocation(id: number) {

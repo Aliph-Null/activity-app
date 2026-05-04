@@ -15,12 +15,16 @@ export class FestivalController {
     if (ed?.id != null) {
       req.session.festivalAdminEditionId = ed.id;
     }
+    const returnPath =
+      typeof req.originalUrl === 'string' ? req.originalUrl.split('?')[0] : '/admin/festival';
     return {
       layout: 'layouts/main',
       currentRoute: 'festival',
       user: req.user,
       flash: req.session._flashMessages,
       festivalNavEditionId: req.session?.festivalAdminEditionId ?? null,
+      allEditions: extra.allEditions ?? this.festivalService.findAllEditions(),
+      switchEditionReturnTo: extra.switchEditionReturnTo ?? returnPath,
       ...extra,
     };
   }
@@ -59,12 +63,133 @@ export class FestivalController {
     return String(val).replace(' ', 'T').slice(0, 16);
   }
 
+  /** Resolve current admin edition: ?edition=, then session if valid, else latest. Updates session when resolved. */
+  private resolveCurrentEditionId(req: any, queryEdition?: string): number | null {
+    const q = queryEdition != null && queryEdition !== '' ? parseInt(String(queryEdition), 10) : NaN;
+    if (Number.isFinite(q)) {
+      const ed = this.festivalService.findEditionById(q);
+      if (ed) {
+        req.session.festivalAdminEditionId = q;
+        return q;
+      }
+    }
+    const sid = req.session?.festivalAdminEditionId;
+    if (sid != null && this.festivalService.findEditionById(sid)) {
+      return sid;
+    }
+    const latest = this.festivalService.findLatestEditionId();
+    if (latest != null) {
+      req.session.festivalAdminEditionId = latest;
+      return latest;
+    }
+    return null;
+  }
+
+  private buildScheduleByDay(
+    rows: any[],
+    presenterRows: { program_id: number; guest_id: number; profile_name: string }[],
+  ) {
+    const presMap = new Map<number, { guest_id: number; profile_name: string }[]>();
+    for (const pr of presenterRows) {
+      const list = presMap.get(pr.program_id) ?? [];
+      list.push({ guest_id: pr.guest_id, profile_name: pr.profile_name });
+      presMap.set(pr.program_id, list);
+    }
+    const scheduleByDay: { program_date: string; rows: any[] }[] = [];
+    for (const row of rows) {
+      const d = row.program_date ?? '';
+      let bucket = scheduleByDay[scheduleByDay.length - 1];
+      if (!bucket || bucket.program_date !== d) {
+        bucket = { program_date: d, rows: [] };
+        scheduleByDay.push(bucket);
+      }
+      bucket.rows.push({ ...row, presenters: presMap.get(row.program_id) ?? [] });
+    }
+    return scheduleByDay;
+  }
+
+  // ── Short aliases (session / latest edition) ─────────────────────────
+
+  @Get('program')
+  programAlias(@Req() req: any, @Res() res: any) {
+    const id = this.resolveCurrentEditionId(req);
+    return id ? res.redirect(`/admin/festival/editions/${id}/program`) : res.redirect('/admin/festival');
+  }
+
+  @Get('guests')
+  guestsAlias(@Req() req: any, @Res() res: any) {
+    const id = this.resolveCurrentEditionId(req);
+    return id ? res.redirect(`/admin/festival/editions/${id}/guests`) : res.redirect('/admin/festival');
+  }
+
+  @Get('locations')
+  locationsAlias(@Req() req: any, @Res() res: any) {
+    const id = this.resolveCurrentEditionId(req);
+    return id ? res.redirect(`/admin/festival/editions/${id}/locations`) : res.redirect('/admin/festival');
+  }
+
+  @Get('sponsors')
+  sponsorsAlias(@Req() req: any, @Res() res: any) {
+    const id = this.resolveCurrentEditionId(req);
+    return id ? res.redirect(`/admin/festival/editions/${id}/sponsors`) : res.redirect('/admin/festival');
+  }
+
+  @Get('tickets')
+  ticketsAlias(@Req() req: any, @Res() res: any) {
+    const id = this.resolveCurrentEditionId(req);
+    return id ? res.redirect(`/admin/festival/editions/${id}/tickets`) : res.redirect('/admin/festival');
+  }
+
+  @Post('current-edition')
+  switchCurrentEdition(@Body() body: any, @Req() req: any, @Res() res: any) {
+    const id = parseInt(String(body.edition_id), 10);
+    const returnTo = typeof body.return_to === 'string' && body.return_to.startsWith('/admin/festival')
+      ? body.return_to
+      : '/admin/festival';
+    if (Number.isFinite(id) && this.festivalService.findEditionById(id)) {
+      req.session.festivalAdminEditionId = id;
+      req.flash('success', 'Edition updated.');
+    } else {
+      req.flash('error', 'Invalid edition.');
+    }
+    res.redirect(returnTo);
+  }
+
   // ── Editions ─────────────────────────────────────────────────────────
 
   @Get()
-  @Render('festival/editions/index')
-  editions(@Req() req: any) {
-    return this.ctx(req, { festivalSubsection: 'editions', items: this.festivalService.findAllEditions() });
+  @Render('festival/dashboard')
+  festivalDashboard(@Req() req: any, @Query('edition') editionQuery: string) {
+    const eid = this.resolveCurrentEditionId(req, editionQuery);
+    if (!eid) {
+      return this.ctx(req, {
+        festivalSubsection: 'overview',
+        festivalSubnav: 'overview',
+        edition: null,
+        ticketCount: 0,
+        scheduleByDay: [] as { program_date: string; rows: any[] }[],
+        sponsors: [],
+      });
+    }
+    const edition = this.festivalService.findEditionById(eid);
+    const scheduleRows = this.festivalService.getProgramScheduleRows(eid);
+    const presenterRows = this.festivalService.getProgramPresenterRowsForEdition(eid);
+    const scheduleByDay = this.buildScheduleByDay(scheduleRows, presenterRows);
+    const ticketCount = this.festivalService.countTicketsForEdition(eid);
+    const sponsors = this.festivalService.getSponsors(eid);
+    return this.ctx(req, {
+      festivalSubsection: 'overview',
+      festivalSubnav: 'overview',
+      edition,
+      ticketCount,
+      scheduleByDay,
+      sponsors,
+    });
+  }
+
+  @Get('editions')
+  editionsCatalog(@Res() res: any) {
+    res.redirect('/admin/festival');
   }
 
   @Get('editions/new')
@@ -85,8 +210,14 @@ export class FestivalController {
   @Get('editions/:id/edit')
   @Render('festival/editions/form')
   editEdition(@Param('id') id: string, @Req() req: any) {
-    const edition = this.festivalService.findEditionById(parseInt(id, 10));
-    return this.ctx(req, { festivalSubsection: 'editions', festivalSubnav: 'edit', edition, blogTags: this.festivalService.getAllBlogTags(), isEdit: true });
+    const eid = parseInt(id, 10);
+    const edition = this.festivalService.findEditionById(eid);
+    return this.ctx(req, {
+      edition,
+      blogTags: this.festivalService.getAllBlogTags(),
+      sections: edition ? this.festivalService.getSections(eid) : [],
+      isEdit: true,
+    });
   }
 
   @Post('editions/:id')
@@ -166,6 +297,22 @@ export class FestivalController {
     res.redirect(`/admin/festival/editions/${id}/activities`);
   }
 
+  @Get('editions/:id/guests')
+  @Render('festival/editions/guests-hub')
+  editionGuestsHub(@Param('id') id: string, @Req() req: any) {
+    const eid = parseInt(id, 10);
+    const edition = this.festivalService.findEditionById(eid);
+    if (!edition) {
+      req.flash('error', 'Edition not found.');
+      return this.ctx(req, { festivalSubsection: 'guests', edition: null, items: [] });
+    }
+    return this.ctx(req, {
+      festivalSubsection: 'guests',
+      edition,
+      items: this.festivalService.getGuests(eid),
+    });
+  }
+
   @Get('editions/:id/locations')
   @Render('festival/editions/locations-hub')
   editionLocationsHub(@Param('id') id: string, @Req() req: any) {
@@ -185,18 +332,34 @@ export class FestivalController {
 
   @Get('editions/:id/program')
   @Render('festival/editions/program-hub')
-  editionProgramHub(@Param('id') id: string, @Req() req: any) {
+  editionProgramHub(@Param('id') id: string, @Query('page') page: string, @Req() req: any) {
     const eid = parseInt(id, 10);
     const edition = this.festivalService.findEditionById(eid);
     if (!edition) {
       req.flash('error', 'Edition not found.');
-      return this.ctx(req, { festivalSubsection: 'program', festivalSubnav: 'program', edition: null, program: [] });
+      return this.ctx(req, {
+        festivalSubsection: 'program',
+        festivalSubnav: 'program',
+        edition: null,
+        scheduleByDay: [],
+        page: 1,
+        totalPages: 1,
+      });
     }
+    const p = parseInt(page, 10) || 1;
+    const { rows, total, page: pg, totalPages } = this.festivalService.getProgramScheduleRowsPaginated(eid, p, 25);
+    const presenterRows = this.festivalService.getProgramPresenterRowsForEdition(eid);
+    const idsOnPage = new Set(rows.map((r) => r.program_id));
+    const filteredPresenters = presenterRows.filter((pr) => idsOnPage.has(pr.program_id));
+    const scheduleByDay = this.buildScheduleByDay(rows, filteredPresenters);
     return this.ctx(req, {
       festivalSubsection: 'program',
       festivalSubnav: 'program',
       edition,
-      program: this.festivalService.getProgram(eid),
+      scheduleByDay,
+      page: pg,
+      totalPages,
+      totalRows: total,
     });
   }
 
@@ -250,7 +413,7 @@ export class FestivalController {
       this.festivalService.createSection(parseInt(id, 10), name);
       req.flash('success', 'Section created.');
     } catch (e: any) { req.flash('error', e.message); }
-    res.redirect(`/admin/festival/editions/${id}`);
+    res.redirect(`/admin/festival/editions/${id}/edit`);
   }
 
   @Post('sections/:id')
@@ -262,7 +425,7 @@ export class FestivalController {
       this.festivalService.updateSection(parseInt(id, 10), name);
       req.flash('success', 'Section updated.');
     } catch (e: any) { req.flash('error', e.message); }
-    res.redirect(`/admin/festival/editions/${section?.edition_id}`);
+    res.redirect(`/admin/festival/editions/${section?.edition_id}/edit`);
   }
 
   @Post('sections/:id/delete')
@@ -272,7 +435,7 @@ export class FestivalController {
       this.festivalService.deleteSection(parseInt(id, 10));
       req.flash('success', 'Section deleted.');
     } catch (e: any) { req.flash('error', e.message); }
-    res.redirect(`/admin/festival/editions/${section?.edition_id}`);
+    res.redirect(`/admin/festival/editions/${section?.edition_id}/edit`);
   }
 
   // ── Activities ───────────────────────────────────────────────────────
@@ -324,9 +487,15 @@ export class FestivalController {
     const activity = this.festivalService.findActivityById(parseInt(id, 10)) as any;
     const section = this.festivalService.getSectionById(activity?.section_id);
     const edition = section ? this.festivalService.findEditionById(section.edition_id) : null;
-    const cancelHref = returnTo === 'hub' && edition
-      ? `/admin/festival/editions/${edition.id}/activities`
-      : (section ? `/admin/festival/sections/${section.id}/activities` : '/admin/festival');
+    const cancelHref = returnTo === 'dashboard'
+      ? '/admin/festival'
+      : returnTo === 'program' && edition
+        ? `/admin/festival/editions/${edition.id}/program`
+        : returnTo === 'hub' && edition
+          ? `/admin/festival/editions/${edition.id}/activities`
+          : (section ? `/admin/festival/sections/${section.id}/activities` : '/admin/festival');
+    const rt =
+      returnTo === 'hub' ? 'hub' : returnTo === 'dashboard' ? 'dashboard' : returnTo === 'program' ? 'program' : '';
     return this.ctx(req, {
       section,
       edition,
@@ -335,7 +504,7 @@ export class FestivalController {
       guests: section ? this.festivalService.getGuests(section.edition_id) : [],
       isEdit: true,
       activityHub: returnTo === 'hub',
-      returnTo: returnTo === 'hub' ? 'hub' : '',
+      returnTo: rt,
       cancelHref,
     });
   }
@@ -351,9 +520,13 @@ export class FestivalController {
     } catch (e: any) {
       req.flash('error', e.message);
     }
-    const dest = body.return_to === 'hub' && section
-      ? `/admin/festival/editions/${section.edition_id}/activities`
-      : `/admin/festival/sections/${activity?.section_id}/activities`;
+    const dest = body.return_to === 'dashboard'
+      ? '/admin/festival'
+      : body.return_to === 'program' && section
+        ? `/admin/festival/editions/${section.edition_id}/program`
+        : body.return_to === 'hub' && section
+          ? `/admin/festival/editions/${section.edition_id}/activities`
+          : `/admin/festival/sections/${activity?.section_id}/activities`;
     res.redirect(dest);
   }
 
@@ -367,9 +540,13 @@ export class FestivalController {
     } catch (e: any) {
       req.flash('error', e.message);
     }
-    const dest = body.return_to === 'hub' && section
-      ? `/admin/festival/editions/${section.edition_id}/activities`
-      : `/admin/festival/sections/${activity?.section_id}/activities`;
+    const dest = body.return_to === 'dashboard'
+      ? '/admin/festival'
+      : body.return_to === 'program' && section
+        ? `/admin/festival/editions/${section.edition_id}/program`
+        : body.return_to === 'hub' && section
+          ? `/admin/festival/editions/${section.edition_id}/activities`
+          : `/admin/festival/sections/${activity?.section_id}/activities`;
     res.redirect(dest);
   }
 
@@ -404,6 +581,7 @@ export class FestivalController {
       edition,
       location: null,
       volunteers: this.festivalService.getVolunteers(eid),
+      previousLocations: this.festivalService.getLocationsFromPreviousEdition(eid),
       isEdit: false,
       cancelHref: `/admin/festival/editions/${eid}/locations`,
     });
@@ -493,17 +671,35 @@ export class FestivalController {
   newGuest(@Param('id') id: string, @Req() req: any) {
     const eid = parseInt(id, 10);
     const edition = this.festivalService.findEditionById(eid);
-    return this.ctx(req, { edition, guest: null, profiles: this.festivalService.getProfilesNotGuest(eid), isEdit: false });
+    return this.ctx(req, {
+      edition,
+      guest: null,
+      profiles: this.festivalService.getProfilesNotGuest(eid),
+      isEdit: false,
+      cancelHref: `/admin/festival/editions/${eid}/guests`,
+    });
   }
 
   @Post('editions/:id/guests')
   createGuest(@Param('id') id: string, @Body() body: any, @Req() req: any, @Res() res: any) {
+    const eid = parseInt(id, 10);
     try {
       const roles = body.roles ? (Array.isArray(body.roles) ? body.roles : [body.roles]) : [];
-      this.festivalService.createGuest(parseInt(id, 10), parseInt(body.profile_id, 10), roles);
+      if (body.profile_mode === 'new') {
+        const name = typeof body.new_profile_name === 'string' ? body.new_profile_name.trim() : '';
+        if (!name) throw new Error('Profile name is required.');
+        this.festivalService.createProfileAndGuest(eid, {
+          name,
+          email: body.new_profile_email || undefined,
+          phone: body.new_profile_phone || undefined,
+        }, roles.length ? roles : ['other']);
+      } else {
+        if (!body.profile_id) throw new Error('Please select a profile.');
+        this.festivalService.createGuest(eid, parseInt(body.profile_id, 10), roles);
+      }
       req.flash('success', 'Guest added.');
     } catch (e: any) { req.flash('error', e.message); }
-    res.redirect(`/admin/festival/editions/${id}`);
+    res.redirect(`/admin/festival/editions/${id}/guests`);
   }
 
   @Get('guests/:id/edit')
@@ -511,7 +707,13 @@ export class FestivalController {
   editGuest(@Param('id') id: string, @Req() req: any) {
     const guest = this.festivalService.findGuestById(parseInt(id, 10));
     const edition = this.festivalService.findEditionById(guest?.edition_id);
-    return this.ctx(req, { edition, guest, profiles: [], isEdit: true });
+    return this.ctx(req, {
+      edition,
+      guest,
+      profiles: [],
+      isEdit: true,
+      cancelHref: `/admin/festival/editions/${guest?.edition_id}/guests`,
+    });
   }
 
   @Post('guests/:id')
@@ -522,7 +724,7 @@ export class FestivalController {
       this.festivalService.updateGuestRoles(parseInt(id, 10), roles);
       req.flash('success', 'Guest updated.');
     } catch (e: any) { req.flash('error', e.message); }
-    res.redirect(`/admin/festival/editions/${guest?.edition_id}`);
+    res.redirect(`/admin/festival/editions/${guest?.edition_id}/guests`);
   }
 
   @Post('guests/:id/delete')
@@ -532,7 +734,7 @@ export class FestivalController {
       this.festivalService.deleteGuest(parseInt(id, 10));
       req.flash('success', 'Guest removed.');
     } catch (e: any) { req.flash('error', e.message); }
-    res.redirect(`/admin/festival/editions/${guest?.edition_id}`);
+    res.redirect(`/admin/festival/editions/${guest?.edition_id}/guests`);
   }
 
   // ── Sponsors ─────────────────────────────────────────────────────────
@@ -563,11 +765,14 @@ export class FestivalController {
   @Get('sponsors/:id/edit')
   @Render('festival/sponsors/form')
   editSponsor(@Param('id') id: string, @Req() req: any) {
-    const sponsor = this.festivalService.findSponsorById(parseInt(id, 10)) as any;
+    const sid = parseInt(id, 10);
+    const sponsor = this.festivalService.findSponsorById(sid) as any;
     const edition = this.festivalService.findEditionById(sponsor?.edition_id);
     return this.ctx(req, {
       edition,
       sponsor,
+      discounts: sponsor ? this.festivalService.getDiscountLocations(sid) : [],
+      festivalSubsection: 'sponsors',
       isEdit: true,
       cancelHref: `/admin/festival/editions/${sponsor?.edition_id}/sponsors`,
     });
@@ -622,16 +827,31 @@ export class FestivalController {
       });
       req.flash('success', 'Discount location added.');
     } catch (e: any) { req.flash('error', e.message); }
-    res.redirect(`/admin/festival/sponsors/${id}/discounts`);
+    res.redirect(`/admin/festival/sponsors/${id}/edit`);
+  }
+
+  @Post('discounts/:id')
+  updateDiscount(@Param('id') id: string, @Body() body: any, @Req() req: any, @Res() res: any) {
+    try {
+      this.festivalService.updateDiscountLocation(parseInt(id, 10), {
+        name: body.name, address: body.address,
+        discount_percent: parseInt(body.discount_percent, 10),
+        redeem_max: parseInt(body.redeem_max, 10),
+      });
+      req.flash('success', 'Discount location updated.');
+    } catch (e: any) { req.flash('error', e.message); }
+    const dl = this.festivalService.findDiscountLocationById(parseInt(id, 10));
+    res.redirect(dl ? `/admin/festival/sponsors/${dl.sponsor_id}/edit` : (req.headers.referer || '/admin/festival'));
   }
 
   @Post('discounts/:id/delete')
   deleteDiscount(@Param('id') id: string, @Req() req: any, @Res() res: any) {
+    const dl = this.festivalService.findDiscountLocationById(parseInt(id, 10));
     try {
       this.festivalService.deleteDiscountLocation(parseInt(id, 10));
       req.flash('success', 'Discount location removed.');
     } catch (e: any) { req.flash('error', e.message); }
-    res.redirect(req.headers.referer || '/admin/festival');
+    res.redirect(dl ? `/admin/festival/sponsors/${dl.sponsor_id}/edit` : (req.headers.referer || '/admin/festival'));
   }
 
   // ── Program ──────────────────────────────────────────────────────────
